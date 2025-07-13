@@ -103,13 +103,12 @@ const ResultScreen = () => {
                             <Text style={theme.typography.boldBody}>
                                 Model: <Text style={theme.typography.body}>{modelRadioButtonHandler(record.selectedModel)}</Text>
                             </Text>
-                            <Spacer height={16} />
                             <Text style={[theme.typography.boldBody, { marginBottom: 12 }]}>
                                 Probability of Positive Result:
                             </Text>
                             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                                 <Progress.Circle
-                                    size={140}
+                                    size={120}
                                     progress={animatedProgress}
                                     showsText={true}
                                     formatText={() => `${Math.round(animatedProgress * 100)} ± ${Math.round(animatedUncertainty)}%`}
@@ -119,7 +118,7 @@ const ResultScreen = () => {
                                     thickness={8}
                                     textStyle={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}
                                 />
-                                <Spacer height={4} />
+                                <Spacer height={8} />
                                 <FillButton onPress={navigateHistoryOnPress} color={Colors.OKAY}>Done</FillButton>
                             </View>
                         </View>

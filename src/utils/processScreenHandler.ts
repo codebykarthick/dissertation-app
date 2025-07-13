@@ -1,5 +1,10 @@
 import ImageResizer from '@bam.tech/react-native-image-resizer';
+import { NativeModules } from 'react-native';
+import RNFS from "react-native-fs";
 import { DatabaseHandler } from "./dbHandler";
+
+// TODO: Complete the Android part of the bridge
+const { CLAHEBridge } = NativeModules;
 
 // src/utils/ImageProcessingPipeline.ts
 export class ImageProcessingPipeline {
@@ -36,6 +41,16 @@ export class ImageProcessingPipeline {
             }
         );
 
+        // Delete the original image
+        try {
+            if (await RNFS.exists(this.fileUri)) {
+                await RNFS.unlink(this.fileUri);
+                console.log("Deleted original image at:", this.fileUri);
+            }
+        } catch (err) {
+            console.warn("Failed to delete original image:", err);
+        }
+
         console.log("Resized and padded image path:", resizedImage.uri);
 
         // Update the file URI so following steps use the new image
@@ -43,8 +58,22 @@ export class ImageProcessingPipeline {
     }
 
     async applyContrastEqualisation() {
-        await this.sleep(1000);
-        // TODO: actual implementation
+        try {
+            const rawPath = this.fileUri.replace("file://", "");
+            console.log("Loading image for CLAHE from: ", rawPath);
+
+            const enhancedUri = await CLAHEBridge.applyClahe(rawPath);
+
+            if (await RNFS.exists(this.fileUri)) {
+                await RNFS.unlink(this.fileUri);
+                console.log("Deleted resized image at:", this.fileUri);
+            }
+
+            this.fileUri = enhancedUri;
+            console.log("CLAHE applied. New file path:", this.fileUri);
+        } catch (err) {
+            console.warn("Failed to apply CLAHE:", err);
+        }
     }
 
     async runModel1() {

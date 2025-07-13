@@ -1,12 +1,5 @@
-//
-//  CLAHEBridge.h
-//  DeepTestApp
-//
-//  Created by Sri Hari Karthick N on 13/07/2025.
-//
+#import <Foundation/Foundation.h>
+#import <React/RCTBridgeModule.h>
 
-#ifndef CLAHEBridge_h
-#define CLAHEBridge_h
-
-
-#endif /* CLAHEBridge_h */
+@interface CLAHEBridge : NSObject <RCTBridgeModule>
+@end
