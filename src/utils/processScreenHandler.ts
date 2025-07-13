@@ -1,3 +1,4 @@
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 import { DatabaseHandler } from "./dbHandler";
 
 // src/utils/ImageProcessingPipeline.ts
@@ -17,9 +18,28 @@ export class ImageProcessingPipeline {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async resizeAndConvertToTensors() {
-        await this.sleep(1000);
-        // TODO: actual implementation
+    async resizeImage() {
+        const targetSize = 224;
+
+        const resizedImage = await ImageResizer.createResizedImage(
+            this.fileUri,
+            targetSize,
+            targetSize,
+            'JPEG',
+            100,
+            0,
+            undefined,
+            false,
+            {
+                mode: 'contain', // Important: maintains aspect ratio + pads with black
+                onlyScaleDown: false,
+            }
+        );
+
+        console.log("Resized and padded image path:", resizedImage.uri);
+
+        // Update the file URI so following steps use the new image
+        this.fileUri = resizedImage.uri;
     }
 
     async applyContrastEqualisation() {
@@ -65,7 +85,7 @@ export class ImageProcessingPipeline {
 
     getSteps(): { label: string; fn: () => Promise<void | null | number> }[] {
         const steps: { label: string; fn: () => Promise<void | null | number> }[] = [
-            { label: "Resizing image and converting to Tensors", fn: () => this.resizeAndConvertToTensors() },
+            { label: "Resizing image", fn: () => this.resizeImage() },
             { label: "Applying Contrast Equalisation", fn: () => this.applyContrastEqualisation() },
         ];
 

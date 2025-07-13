@@ -48,6 +48,7 @@ PODS:
     - React-RCTText (= 0.80.0)
     - React-RCTVibration (= 0.80.0)
   - React-callinvoker (0.80.0)
+  - React-Codegen (0.1.0)
   - React-Core (0.80.0):
     - boost
     - DoubleConversion
@@ -1678,6 +1679,36 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-image-resizer (3.0.11):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - react-native-safe-area-context (5.5.0):
     - boost
     - DoubleConversion
@@ -2657,6 +2688,7 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - "react-native-image-resizer (from `../node_modules/@bam.tech/react-native-image-resizer`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -2705,6 +2737,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - BEMCheckBox
+    - React-Codegen
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -2791,6 +2824,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-image-resizer:
+    :path: "../node_modules/@bam.tech/react-native-image-resizer"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sqlite-storage:
@@ -2893,6 +2928,7 @@ SPEC CHECKSUMS:
   RCTTypeSafety: a5cf7a7e80baf972e331dc028e5d5c19bb2535a4
   React: 606d4dccbcf29aec4dc84a7921405a28e1701a22
   React-callinvoker: 0e13bd3c039df9ceef04f7381a81f017655c8361
+  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: 701ad54ae468c2ca1e4869d659b30ebfee30ac77
   React-CoreModules: 99d3515898255378fa2d6fc906b6dca093d280c4
   React-cxxreact: 3410a1edbe15936bcf8eae61a546af1bec06ed98
@@ -2921,6 +2957,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: b48f9f3311fd0ec0f7a5dc39d707eff521fb5f38
   React-microtasksnativemodule: d8568d0485a350c720c061ae835e09fc88c28715
   react-native-image-picker: df98fd6bf821b49ae97a383fd4adb1430f659a67
+  react-native-image-resizer: b258ba421735d992ae8b1b5679d99d68147f6726
   react-native-safe-area-context: 31fa8b0bb05496c4005aa5560283f5015e809b91
   react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
   React-NativeModulesApple: f10596688a03af66804cfbe61792be24a7888da8
