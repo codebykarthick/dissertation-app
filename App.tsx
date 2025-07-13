@@ -5,17 +5,26 @@
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { StyleSheet, useColorScheme } from 'react-native';
+
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import AppNavigator from './src/navigation/AppNavigator';
+import { SnackbarProvider } from './src/providers/snackbar/SnackbarContext';
+import { AppThemeProvider } from './src/providers/theme/ThemeContext';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
-    </View>
+    <AppThemeProvider>
+      <SafeAreaProvider>
+        <SnackbarProvider>
+          <SafeAreaView style={styles.container}>
+            <AppNavigator />
+          </SafeAreaView>
+        </SnackbarProvider>
+      </SafeAreaProvider>
+    </AppThemeProvider>
   );
 }
 
