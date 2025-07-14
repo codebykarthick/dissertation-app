@@ -3,6 +3,6 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/IconWithBg_Medium" />
+            android:src="@drawable/icon_with_bg_medium" />
     </item>
 </layer-list>
