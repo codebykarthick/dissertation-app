@@ -31,6 +31,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app needs access to your local network to load JavaScript from your development server.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to the camera to take photos of test kits.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
