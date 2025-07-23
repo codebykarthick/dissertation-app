@@ -5,7 +5,6 @@ import RNFS from 'react-native-fs';
 import { launchImageLibrary } from "react-native-image-picker";
 import type { Camera as CameraType } from 'react-native-vision-camera';
 import { Camera, useCameraDevice } from "react-native-vision-camera";
-import CameraGrid from "../assets/icons/camera_grid.svg";
 import CameraShutterIcon from "../assets/icons/camera_shutter.svg";
 import GalleryIcon from "../assets/icons/gallery.svg";
 import HomeIcon from "../assets/icons/home.svg";
@@ -125,15 +124,6 @@ const CameraScreen = () => {
                         isActive={true}
                         style={{ flex: 1 }}
                         photoQualityBalance="quality"
-                    />
-                    <CameraGrid
-                        width="100%"
-                        height="100%"
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                        }}
                     />
                 </> :
                     <InfoBanner style={{ flex: 1, width: '100%' }}>Please allow Camera permission to take photos of test kits in Phone Settings.</InfoBanner>}

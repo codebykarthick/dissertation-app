@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 import RNFS from "react-native-fs";
 import { DatabaseHandler } from "./dbHandler";
+import { cropAndMapBack } from './modelHandler';
 
 // TODO: Complete the Android part of the bridge
 const { CLAHEBridge } = NativeModules;
@@ -23,8 +24,8 @@ export class ImageProcessingPipeline {
     }
 
     async roiAndCropImage() {
-        await this.sleep(1000);
-        // TODO: actual implementation
+        let response = await cropAndMapBack(this.fileUri);
+        this.fileUri = response!
     }
 
     async applyContrastEqualisation() {

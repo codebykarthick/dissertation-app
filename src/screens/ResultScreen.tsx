@@ -62,8 +62,6 @@ const ResultScreen = () => {
         }
     }, [record]);
 
-    console.log("Received record in Result Screen.", record);
-
     return (
         <View style={{ flex: 1, padding: 20 }}>
             <View style={{ paddingHorizontal: 12 }}>

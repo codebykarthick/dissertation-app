@@ -11,9 +11,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		4C27518B94380283F014F0B6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		6007B09A2E24627A001FF5E0 /* CLAHEBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6007B0992E24627A001FF5E0 /* CLAHEBridge.mm */; };
-		608E78B42E31279500BB09B6 /* mobile_efficientnet.pt in Resources */ = {isa = PBXBuildFile; fileRef = 608E78B22E31279500BB09B6 /* mobile_efficientnet.pt */; };
-		608E78B52E31279500BB09B6 /* mobile_shufflenet.pt in Resources */ = {isa = PBXBuildFile; fileRef = 608E78B32E31279500BB09B6 /* mobile_shufflenet.pt */; };
-		608E78B62E31279500BB09B6 /* mobile_crop.pt in Resources */ = {isa = PBXBuildFile; fileRef = 608E78B12E31279500BB09B6 /* mobile_crop.pt */; };
+		60CC066D2E315ADA0081C1BD /* yolo.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 60CC066C2E315ADA0081C1BD /* yolo.onnx */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -27,9 +25,7 @@
 		5709B34CF0A7D63546082F79 /* Pods-DeepTestApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DeepTestApp.release.xcconfig"; path = "Target Support Files/Pods-DeepTestApp/Pods-DeepTestApp.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-DeepTestApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DeepTestApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6007B0992E24627A001FF5E0 /* CLAHEBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CLAHEBridge.mm; sourceTree = "<group>"; };
-		608E78B12E31279500BB09B6 /* mobile_crop.pt */ = {isa = PBXFileReference; lastKnownFileType = file; path = mobile_crop.pt; sourceTree = "<group>"; };
-		608E78B22E31279500BB09B6 /* mobile_efficientnet.pt */ = {isa = PBXFileReference; lastKnownFileType = file; path = mobile_efficientnet.pt; sourceTree = "<group>"; };
-		608E78B32E31279500BB09B6 /* mobile_shufflenet.pt */ = {isa = PBXFileReference; lastKnownFileType = file; path = mobile_shufflenet.pt; sourceTree = "<group>"; };
+		60CC066C2E315ADA0081C1BD /* yolo.onnx */ = {isa = PBXFileReference; lastKnownFileType = text; path = yolo.onnx; sourceTree = "<group>"; };
 		60CC11392E245F4D00FDF4EF /* CLAHEBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CLAHEBridge.h; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DeepTestApp/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = DeepTestApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -75,9 +71,7 @@
 		608E78B02E31277700BB09B6 /* models */ = {
 			isa = PBXGroup;
 			children = (
-				608E78B12E31279500BB09B6 /* mobile_crop.pt */,
-				608E78B22E31279500BB09B6 /* mobile_efficientnet.pt */,
-				608E78B32E31279500BB09B6 /* mobile_shufflenet.pt */,
+				60CC066C2E315ADA0081C1BD /* yolo.onnx */,
 			);
 			path = models;
 			sourceTree = "<group>";
@@ -181,11 +175,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				60CC066D2E315ADA0081C1BD /* yolo.onnx in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				4C27518B94380283F014F0B6 /* PrivacyInfo.xcprivacy in Resources */,
-				608E78B42E31279500BB09B6 /* mobile_efficientnet.pt in Resources */,
-				608E78B52E31279500BB09B6 /* mobile_shufflenet.pt in Resources */,
-				608E78B62E31279500BB09B6 /* mobile_crop.pt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,13 +209,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-DeepTestApp/Pods-DeepTestApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-DeepTestApp/Pods-DeepTestApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -260,13 +248,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-DeepTestApp/Pods-DeepTestApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-DeepTestApp/Pods-DeepTestApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -413,7 +397,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -482,7 +469,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

@@ -9,11 +9,10 @@ PODS:
   - hermes-engine (0.80.0):
     - hermes-engine/Pre-built (= 0.80.0)
   - hermes-engine/Pre-built (0.80.0)
-  - LibTorch-Lite (1.12.0):
-    - LibTorch-Lite/Core (= 1.12.0)
-  - LibTorch-Lite/Core (1.12.0):
-    - LibTorch-Lite/Torch
-  - LibTorch-Lite/Torch (1.12.0)
+  - onnxruntime-c (1.22.0)
+  - onnxruntime-react-native (1.22.0):
+    - onnxruntime-c
+    - React-Core
   - OpenCV-Dynamic-Framework (4.10.0.1)
   - RCT-Folly (2024.11.18.00):
     - boost
@@ -1656,6 +1655,36 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - SocketRocket
+  - react-native-image-editor (4.3.0):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-RCTImage
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - react-native-image-picker (8.2.1):
     - boost
     - DoubleConversion
@@ -1715,11 +1744,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-pytorch-core (0.2.4):
-    - LibTorch-Lite (~> 1.12.0)
-    - React
-    - React-callinvoker
-    - React-Core
   - react-native-safe-area-context (5.5.0):
     - boost
     - DoubleConversion
@@ -2664,6 +2688,7 @@ DEPENDENCIES:
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - onnxruntime-react-native (from `../node_modules/onnxruntime-react-native`)
   - OpenCV-Dynamic-Framework (~> 4.10)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2699,9 +2724,9 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - "react-native-image-editor (from `../node_modules/@react-native-community/image-editor`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-image-resizer (from `../node_modules/@bam.tech/react-native-image-resizer`)"
-  - react-native-pytorch-core (from `../node_modules/react-native-pytorch-core`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -2750,7 +2775,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - BEMCheckBox
-    - LibTorch-Lite
+    - onnxruntime-c
     - OpenCV-Dynamic-Framework
     - React-Codegen
     - SocketRocket
@@ -2771,6 +2796,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2025-05-06-RNv0.80.0-4eb6132a5bf0450bf4c6c91987675381d7ac8bca
+  onnxruntime-react-native:
+    :path: "../node_modules/onnxruntime-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2837,12 +2864,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-image-editor:
+    :path: "../node_modules/@react-native-community/image-editor"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-image-resizer:
     :path: "../node_modules/@bam.tech/react-native-image-resizer"
-  react-native-pytorch-core:
-    :path: "../node_modules/react-native-pytorch-core"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sqlite-storage:
@@ -2939,7 +2966,8 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 7068e976238b29e97b3bafd09a994542af7d5c0b
-  LibTorch-Lite: c2210be0ed41c3a7f972c82715663a44d35ad97c
+  onnxruntime-c: 7f778680e96145956c0a31945f260321eed2611a
+  onnxruntime-react-native: fc8c8349f1cc9bf6123f5e4f91cdc270a75f1e81
   OpenCV-Dynamic-Framework: b9483ac40f2e5459231f5d140f1fb754ec605e2b
   RCT-Folly: 59ec0ac1f2f39672a0c6e6cecdd39383b764646f
   RCTDeprecation: ff787f6c860a1b97dd1bc27264b61d23ad1994da
@@ -2975,9 +3003,9 @@ SPEC CHECKSUMS:
   React-logger: b69e65dc60f768e5509ac0cc27a360124bf70478
   React-Mapbuffer: b48f9f3311fd0ec0f7a5dc39d707eff521fb5f38
   React-microtasksnativemodule: d8568d0485a350c720c061ae835e09fc88c28715
+  react-native-image-editor: 834125f8b9101c85dfbdb5c89062c5cc56199e2a
   react-native-image-picker: df98fd6bf821b49ae97a383fd4adb1430f659a67
   react-native-image-resizer: b258ba421735d992ae8b1b5679d99d68147f6726
-  react-native-pytorch-core: dd6dd6880d54136eb0067e1a0e54f5833a82613b
   react-native-safe-area-context: 31fa8b0bb05496c4005aa5560283f5015e809b91
   react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
   React-NativeModulesApple: f10596688a03af66804cfbe61792be24a7888da8
@@ -3023,6 +3051,6 @@ SPEC CHECKSUMS:
   VisionCamera: b3c0cf261b9ad1ac7d60ec292d252cf3368b801e
   Yoga: 395b5d614cd7cbbfd76b05d01bd67230a6ad004e
 
-PODFILE CHECKSUM: ac684f6669ecdcbd1b0d76e836a9da760c8ba2b1
+PODFILE CHECKSUM: 8a5073e23404a3dbde1e285a29726a5712f7f26d
 
 COCOAPODS: 1.16.2
