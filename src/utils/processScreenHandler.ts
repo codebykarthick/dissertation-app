@@ -1,4 +1,3 @@
-import ImageResizer from '@bam.tech/react-native-image-resizer';
 import { NativeModules } from 'react-native';
 import RNFS from "react-native-fs";
 import { DatabaseHandler } from "./dbHandler";
@@ -23,38 +22,9 @@ export class ImageProcessingPipeline {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async resizeImage() {
-        const targetSize = 224;
-
-        const resizedImage = await ImageResizer.createResizedImage(
-            this.fileUri,
-            targetSize,
-            targetSize,
-            'JPEG',
-            100,
-            0,
-            undefined,
-            false,
-            {
-                mode: 'contain', // Important: maintains aspect ratio + pads with black
-                onlyScaleDown: false,
-            }
-        );
-
-        // Delete the original image
-        try {
-            if (await RNFS.exists(this.fileUri)) {
-                await RNFS.unlink(this.fileUri);
-                console.log("Deleted original image at:", this.fileUri);
-            }
-        } catch (err) {
-            console.warn("Failed to delete original image:", err);
-        }
-
-        console.log("Resized and padded image path:", resizedImage.uri);
-
-        // Update the file URI so following steps use the new image
-        this.fileUri = resizedImage.uri;
+    async roiAndCropImage() {
+        await this.sleep(1000);
+        // TODO: actual implementation
     }
 
     async applyContrastEqualisation() {
@@ -114,7 +84,7 @@ export class ImageProcessingPipeline {
 
     getSteps(): { label: string; fn: () => Promise<void | null | number> }[] {
         const steps: { label: string; fn: () => Promise<void | null | number> }[] = [
-            { label: "Resizing image", fn: () => this.resizeImage() },
+            { label: "Detection Region Of Interest", fn: () => this.roiAndCropImage() },
             { label: "Applying Contrast Equalisation", fn: () => this.applyContrastEqualisation() },
         ];
 
