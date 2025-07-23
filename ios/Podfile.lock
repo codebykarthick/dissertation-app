@@ -9,6 +9,11 @@ PODS:
   - hermes-engine (0.80.0):
     - hermes-engine/Pre-built (= 0.80.0)
   - hermes-engine/Pre-built (0.80.0)
+  - LibTorch-Lite (1.12.0):
+    - LibTorch-Lite/Core (= 1.12.0)
+  - LibTorch-Lite/Core (1.12.0):
+    - LibTorch-Lite/Torch
+  - LibTorch-Lite/Torch (1.12.0)
   - OpenCV-Dynamic-Framework (4.10.0.1)
   - RCT-Folly (2024.11.18.00):
     - boost
@@ -1710,6 +1715,11 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-pytorch-core (0.2.4):
+    - LibTorch-Lite (~> 1.12.0)
+    - React
+    - React-callinvoker
+    - React-Core
   - react-native-safe-area-context (5.5.0):
     - boost
     - DoubleConversion
@@ -2691,6 +2701,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-image-resizer (from `../node_modules/@bam.tech/react-native-image-resizer`)"
+  - react-native-pytorch-core (from `../node_modules/react-native-pytorch-core`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-sqlite-storage (from `../node_modules/react-native-sqlite-storage`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -2739,6 +2750,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - BEMCheckBox
+    - LibTorch-Lite
     - OpenCV-Dynamic-Framework
     - React-Codegen
     - SocketRocket
@@ -2829,6 +2841,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-image-resizer:
     :path: "../node_modules/@bam.tech/react-native-image-resizer"
+  react-native-pytorch-core:
+    :path: "../node_modules/react-native-pytorch-core"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-sqlite-storage:
@@ -2925,6 +2939,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 7068e976238b29e97b3bafd09a994542af7d5c0b
+  LibTorch-Lite: c2210be0ed41c3a7f972c82715663a44d35ad97c
   OpenCV-Dynamic-Framework: b9483ac40f2e5459231f5d140f1fb754ec605e2b
   RCT-Folly: 59ec0ac1f2f39672a0c6e6cecdd39383b764646f
   RCTDeprecation: ff787f6c860a1b97dd1bc27264b61d23ad1994da
@@ -2962,6 +2977,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: d8568d0485a350c720c061ae835e09fc88c28715
   react-native-image-picker: df98fd6bf821b49ae97a383fd4adb1430f659a67
   react-native-image-resizer: b258ba421735d992ae8b1b5679d99d68147f6726
+  react-native-pytorch-core: dd6dd6880d54136eb0067e1a0e54f5833a82613b
   react-native-safe-area-context: 31fa8b0bb05496c4005aa5560283f5015e809b91
   react-native-sqlite-storage: f6d515e1c446d1e6d026aa5352908a25d4de3261
   React-NativeModulesApple: f10596688a03af66804cfbe61792be24a7888da8
@@ -3007,6 +3023,6 @@ SPEC CHECKSUMS:
   VisionCamera: b3c0cf261b9ad1ac7d60ec292d252cf3368b801e
   Yoga: 395b5d614cd7cbbfd76b05d01bd67230a6ad004e
 
-PODFILE CHECKSUM: c451ade4fde3156c5a08718d42d1d93a42b48cf2
+PODFILE CHECKSUM: ac684f6669ecdcbd1b0d76e836a9da760c8ba2b1
 
 COCOAPODS: 1.16.2
