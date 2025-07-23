@@ -66,3 +66,44 @@ public class ClaheModule extends ReactContextBaseJavaModule {
         }
     }
 }
+    @ReactMethod
+    public void makeLetterBox(String imagePath, int targetWidth, int targetHeight, Promise promise) {
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+            if (bitmap == null) {
+                promise.reject("LETTERBOX_ERROR", "Could not decode image");
+                return;
+            }
+
+            int srcWidth = bitmap.getWidth();
+            int srcHeight = bitmap.getHeight();
+
+            float scale = Math.min((float) targetWidth / srcWidth, (float) targetHeight / srcHeight);
+            int newWidth = Math.round(srcWidth * scale);
+            int newHeight = Math.round(srcHeight * scale);
+
+            Bitmap resized = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+            Bitmap canvas = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
+
+            // Fill canvas with black
+            canvas.eraseColor(android.graphics.Color.BLACK);
+
+            // Draw resized bitmap centered on canvas
+            android.graphics.Canvas drawingCanvas = new android.graphics.Canvas(canvas);
+            int left = (targetWidth - newWidth) / 2;
+            int top = (targetHeight - newHeight) / 2;
+            drawingCanvas.drawBitmap(resized, left, top, null);
+
+            // Save result
+            String outputPath = imagePath.replace(".jpg", "_letterbox.jpg");
+            File outFile = new File(outputPath);
+            FileOutputStream out = new FileOutputStream(outFile);
+            canvas.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+
+            promise.resolve("file://" + outputPath);
+        } catch (Exception e) {
+            Log.e("LETTERBOX", "Error creating letterbox image", e);
+            promise.reject("LETTERBOX_EXCEPTION", e.getMessage());
+        }
+    }

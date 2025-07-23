@@ -3,8 +3,10 @@ import ImageEditor from '@react-native-community/image-editor';
 import { Buffer } from 'buffer';
 import jpeg from 'jpeg-js';
 import * as ort from "onnxruntime-react-native";
-import { Image, Platform } from 'react-native';
+import { Image, NativeModules, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
+
+const { CLAHEBridge } = NativeModules;
 
 async function getModelPath(modelType: "yolo.onnx" | "efficientnet.onnx" | "shufflenet.onnx") {
     // Determine the correct path for the model based on the platform
@@ -158,8 +160,11 @@ export async function cropAndMapBack(fileUri: string) {
             throw new Error("croppedUri is undefined. Cropping may have failed.");
         }
 
-        return croppedUri.uri;
+        const rawPath = croppedUri.uri.replace("file://", "");
+        console.log("Letterboxing image into 224x224 from: ", rawPath);
+        const newPath = await CLAHEBridge.makeLetterBox(rawPath, 224, 224);
 
+        return newPath;
     } catch (err) {
         console.error("Error during model session creation or inference: ", err);
     }
