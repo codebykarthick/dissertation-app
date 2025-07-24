@@ -111,6 +111,8 @@ const CameraScreen = () => {
     const cameraDevice = useCameraDevice('back');
     const isCameraOn = cameraDevice && cameraPermission === "granted"
 
+    console.log(theme.text);
+
     return (
         <View style={{ flex: 1, padding: 20 }}>
             <IconButton onPress={navigateHistoryOnPress}><HomeIcon width={36} height={36} stroke={theme.text} /></IconButton>
