@@ -1,9 +1,9 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
-import * as Progress from 'react-native-progress';
 import { RadioGroup } from "react-native-radio-buttons-group";
 import LeftArrowIcon from "../assets/icons/arrow-left.svg";
+import { AnimatedProgressBar } from "../components/Animated";
 import { IconButton, TextButton } from "../components/Buttons";
 import { Title } from "../components/Fonts";
 import { Input } from "../components/Inputs";
@@ -13,7 +13,6 @@ import { TypeRadioButtons } from "../constants/screens";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useTheme } from "../providers/theme/ThemeContext";
 import { Record } from "../types/DBTypes";
-import { getProbabilityColor } from "../utils/colorHandler";
 import { DatabaseHandler } from "../utils/dbHandler";
 import { modelRadioButtonHandler, typeRadioButtonHandler } from "../utils/radioButtonHandler";
 
@@ -26,8 +25,6 @@ const InfoScreen = () => {
     const [selectedType, setSelectedType] = useState<string>(item.selectedType);
     const [record, setRecord] = useState<Record>(item);
     const [isEdit, setIsEdit] = useState<boolean>(false);
-    const [animatedProgress, setAnimatedProgress] = useState(0);
-    const [animatedUncertainty, setAnimatedUncertainty] = useState(0);
     const theme = useTheme();
     const navigation = useNavigation<any>();
     const databaseHandler = DatabaseHandler.getInstance();
@@ -49,26 +46,6 @@ const InfoScreen = () => {
         console.log("Record updated successfully!")
         setIsEdit(false);
     }
-
-    useEffect(() => {
-        if (record) {
-            let frame = 0;
-            const maxFrames = 60;
-            const targetProb = record.probability / 100;
-            const targetUncertainty = record.uncertainity;
-            const interval = setInterval(() => {
-                frame++;
-                const progress = targetProb * (frame / maxFrames);
-                const uncert = targetUncertainty * (frame / maxFrames);
-                setAnimatedProgress(progress);
-                setAnimatedUncertainty(uncert);
-                if (frame >= maxFrames) {
-                    clearInterval(interval);
-                }
-            }, 10);
-            return () => clearInterval(interval);
-        }
-    }, [record]);
 
     return (
         <View style={{ flex: 1, padding: 20 }}>
@@ -128,17 +105,7 @@ const InfoScreen = () => {
                                 Probability of Positive Result:
                             </Text>
                             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                <Progress.Circle
-                                    size={140}
-                                    progress={animatedProgress}
-                                    showsText={true}
-                                    formatText={() => `${Math.round(animatedProgress * 100)} ± ${Math.round(animatedUncertainty)}%`}
-                                    color={getProbabilityColor(record.probability)}
-                                    unfilledColor="#e0e0e0"
-                                    borderWidth={0}
-                                    thickness={8}
-                                    textStyle={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}
-                                />
+                                <AnimatedProgressBar record={record} />
                             </View>
                         </View>
                     )}

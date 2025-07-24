@@ -141,7 +141,7 @@ export async function cropAndMapBack(fileUri: string) {
 
         console.log(`Mapped to original: [${origX1}, ${origY1}] to [${origX2}, ${origY2}]`);
 
-
+        // FIXME: We save it as JPEG multiple times, which can lead to loss of quality.
         // Crop the original image using ImageEditor
         try {
             const cropData = {

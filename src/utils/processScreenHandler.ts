@@ -3,11 +3,12 @@ import RNFS from "react-native-fs";
 import { DatabaseHandler } from "./dbHandler";
 import { cropAndMapBack, runEfficientNetInference, runShuffleNetInference } from './modelHandler';
 
-// TODO: Complete the Android part of the bridge
 const { CLAHEBridge } = NativeModules;
 
 // src/utils/ImageProcessingPipeline.ts
 export class ImageProcessingPipeline {
+    private croppedUri: string = "";
+
     constructor(
         private fileUri: string,
         private name: string,
@@ -21,6 +22,7 @@ export class ImageProcessingPipeline {
 
     async roiAndCropImage() {
         let response = await cropAndMapBack(this.fileUri);
+        // TODO: THIS IS ONLY FOR Debugging. Save it in croppedUri instead
         this.fileUri = response!
     }
 
@@ -70,6 +72,13 @@ export class ImageProcessingPipeline {
     }
 
     async writeResultsToStorage() {
+        // Delete the temp CroppedUri
+        const croppedFileExists = await RNFS.exists(this.croppedUri);
+        if (croppedFileExists) {
+            console.log("Deleting cached photo: ", this.croppedUri);
+            await RNFS.unlink(this.croppedUri);
+        }
+
         if (this.probability === Number.NEGATIVE_INFINITY &&
             this.uncertainity === Number.NEGATIVE_INFINITY) {
             console.log("Adjusting probability and uncertainity with random values.");
