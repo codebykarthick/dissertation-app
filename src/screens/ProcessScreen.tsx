@@ -55,7 +55,7 @@ const ProcessScreen = () => {
                 color={theme.primary}
                 formatText={() => `${Math.round(progress * 100)}%`}
             />
-            <Text style={styles.stepText}>{currentStep}</Text>
+            <Text style={[styles.stepText, { color: theme.primary }]}>{currentStep}</Text>
         </View>
     );
 }

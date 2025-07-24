@@ -1,8 +1,8 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
+import { ArrowLeft as LeftArrowIcon } from "react-native-feather";
 import { RadioGroup } from "react-native-radio-buttons-group";
-import LeftArrowIcon from "../assets/icons/arrow-left.svg";
 import { AnimatedProgressBar } from "../components/Animated";
 import { IconButton, TextButton } from "../components/Buttons";
 import { Title } from "../components/Fonts";
@@ -80,15 +80,15 @@ const InfoScreen = () => {
                     <Spacer height={24} />
                     {record && (
                         <View style={{ gap: 8 }}>
-                            <Text style={theme.typography.boldBody}>
-                                Name: {!isEdit && <Text style={theme.typography.body}>{record.name}</Text>}
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Name: {!isEdit && <Text style={[theme.typography.body, { color: theme.text }]}>{record.name}</Text>}
                             </Text>
                             {isEdit && <Input onChangeText={setName} value={name} />}
-                            <Text style={theme.typography.boldBody}>
-                                Date: <Text style={theme.typography.body}>{record.timestamp}</Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Date: <Text style={[theme.typography.body, { color: theme.text }]}>{record.timestamp}</Text>
                             </Text>
-                            <Text style={theme.typography.boldBody}>
-                                Type: {!isEdit && <Text style={theme.typography.body}>{typeRadioButtonHandler(record.selectedType)}</Text>}
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Type: {!isEdit && <Text style={[theme.typography.body, { color: theme.text }]}>{typeRadioButtonHandler(record.selectedType)}</Text>}
                             </Text>
                             {isEdit && <RadioGroup
                                 radioButtons={TypeRadioButtons}
@@ -97,11 +97,11 @@ const InfoScreen = () => {
                                 layout="row"
                                 containerStyle={{ flexDirection: "row", justifyContent: "space-evenly", width: "100%", paddingVertical: 4 }}
                             />}
-                            <Text style={theme.typography.boldBody}>
-                                Model: <Text style={theme.typography.body}>{modelRadioButtonHandler(record.selectedModel)}</Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Model: <Text style={[theme.typography.body, { color: theme.text }]}>{modelRadioButtonHandler(record.selectedModel)}</Text>
                             </Text>
                             <Spacer height={16} />
-                            <Text style={[theme.typography.boldBody, { marginBottom: 12 }]}>
+                            <Text style={[theme.typography.boldBody, { marginBottom: 12 }, { color: theme.text }]}>
                                 Probability of Positive Result:
                             </Text>
                             <View style={{ alignItems: 'center', justifyContent: 'center' }}>

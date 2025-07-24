@@ -2,7 +2,7 @@ import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 
-import HomeIcon from "../assets/icons/home.svg";
+import { Home as HomeIcon } from "react-native-feather";
 import { FillButton, IconButton } from "../components/Buttons";
 import { Title } from "../components/Fonts";
 import Spacer from "../components/Spacer";
@@ -70,19 +70,19 @@ const ResultScreen = () => {
                     <Spacer height={24} />
                     {record && (
                         <View style={{ gap: 8 }}>
-                            <Text style={theme.typography.boldBody}>
-                                Name: <Text style={theme.typography.body}>{record.name}</Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Name: <Text style={[theme.typography.body, { color: theme.text }]}>{record.name}</Text>
                             </Text>
-                            <Text style={theme.typography.boldBody}>
-                                Date: <Text style={theme.typography.body}>{record.timestamp}</Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Date: <Text style={[theme.typography.body, { color: theme.text }]}>{record.timestamp}</Text>
                             </Text>
-                            <Text style={theme.typography.boldBody}>
-                                Type: <Text style={theme.typography.body}>{typeRadioButtonHandler(record.selectedType)}</Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Type: <Text style={[theme.typography.body, { color: theme.text }]}>{typeRadioButtonHandler(record.selectedType)}</Text>
                             </Text>
-                            <Text style={theme.typography.boldBody}>
-                                Model: <Text style={theme.typography.body}>{modelRadioButtonHandler(record.selectedModel)}</Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Model: <Text style={[theme.typography.body, { color: theme.text }]}>{modelRadioButtonHandler(record.selectedModel)}</Text>
                             </Text>
-                            <Text style={[theme.typography.boldBody, { marginBottom: 12 }]}>
+                            <Text style={[theme.typography.boldBody, { marginBottom: 12, color: theme.text }]}>
                                 Probability of Positive Result:
                             </Text>
                             <View style={{ alignItems: 'center', justifyContent: 'center' }}>

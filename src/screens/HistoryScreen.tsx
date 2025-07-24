@@ -1,9 +1,7 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Animated, Easing, FlatList, View } from "react-native";
-import CameraIcon from "../assets/icons/camera.svg";
-import CheckIcon from "../assets/icons/check.svg";
-import FilterIcon from "../assets/icons/filter.svg";
+import { Camera as CameraIcon, CheckSquare as CheckIcon, Filter as FilterIcon } from "react-native-feather";
 import { FloatingActionButton, IconButton, OutlineButton, TextButton } from "../components/Buttons";
 import { Title } from "../components/Fonts";
 import { SearchInput } from "../components/Inputs";

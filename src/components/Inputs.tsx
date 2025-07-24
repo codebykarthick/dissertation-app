@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
-import SearchIcon from '../assets/icons/search.svg';
+import { Search as SearchIcon } from 'react-native-feather';
 import { useTheme } from '../providers/theme/ThemeContext';
 
 type SearchInputProps = TextInputProps & {

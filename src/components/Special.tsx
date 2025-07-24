@@ -54,11 +54,11 @@ export const PictureRowItem = ({ showCheckBox, record, isChecked, onToggle }: Pi
                     resizeMode="contain"
                 />
                 <View style={{ padding: 8 }}>
-                    <Text style={theme.typography.boldBody}>{record.name}</Text>
+                    <Text style={[theme.typography.boldBody, { color: theme.text }]}>{record.name}</Text>
                     <Spacer height={4} />
-                    <Text style={theme.typography.softBody}>{record.timestamp}</Text>
+                    <Text style={[theme.typography.softBody, { color: theme.text }]}>{record.timestamp}</Text>
                     <Spacer height={4} />
-                    <Text style={theme.typography.body}>Probability: {Math.round(record.probability)} ± {Math.round(record.uncertainity)}%</Text>
+                    <Text style={[theme.typography.body, { color: theme.text }]}>Probability: {Math.round(record.probability)} ± {Math.round(record.uncertainity)}%</Text>
                 </View>
             </View>
         </TouchableOpacity>
