@@ -116,3 +116,36 @@ RCT_EXPORT_METHOD(makeLetterBox:(NSString *)imagePath
 }
 
 @end
+
+
+RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+  @try {
+    UIImage *inputImage = [UIImage imageWithContentsOfFile:imagePath];
+    if (!inputImage) {
+      reject(@"BLUR_CHECK_IMAGE_ERROR", @"Failed to load image from path", nil);
+      return;
+    }
+
+    cv::Mat mat;
+    UIImageToMat(inputImage, mat);
+    cv::cvtColor(mat, mat, cv::COLOR_BGRA2GRAY);
+
+    // Compute Laplacian and its variance
+    cv::Mat laplacian;
+    cv::Laplacian(mat, laplacian, CV_64F);
+
+    cv::Scalar mean, stddev;
+    cv::meanStdDev(laplacian, mean, stddev);
+    double variance = stddev[0] * stddev[0];
+
+    // Threshold for blurriness (you can adjust this empirically)
+    double threshold = 100.0;
+    BOOL isBlurred = variance < threshold;
+
+    resolve(@(isBlurred));
+  } @catch (NSException *exception) {
+    reject(@"BLUR_CHECK_EXCEPTION", exception.reason, nil);
+  }
+}

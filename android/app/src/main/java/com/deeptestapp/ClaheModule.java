@@ -118,3 +118,34 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             promise.reject("LETTERBOX_EXCEPTION", e.getMessage());
         }
     }
+
+    @ReactMethod
+    public void isImageBlurred(String imagePath, Promise promise) {
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+            if (bitmap == null) {
+                promise.reject("BLUR_CHECK_IMAGE_ERROR", "Could not decode image");
+                return;
+            }
+
+            Mat mat = new Mat();
+            Utils.bitmapToMat(bitmap, mat);
+            Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2GRAY);
+
+            Mat laplacian = new Mat();
+            Imgproc.Laplacian(mat, laplacian, CvType.CV_64F);
+
+            MatOfDouble mean = new MatOfDouble();
+            MatOfDouble stddev = new MatOfDouble();
+            Core.meanStdDev(laplacian, mean, stddev);
+            double variance = Math.pow(stddev.get(0, 0)[0], 2);
+
+            double threshold = 100.0;
+            boolean isBlurred = variance < threshold;
+
+            promise.resolve(isBlurred);
+        } catch (Exception e) {
+            Log.e("BLUR_CHECK", "Error checking image blur", e);
+            promise.reject("BLUR_CHECK_EXCEPTION", e.getMessage());
+        }
+    }

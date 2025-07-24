@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
-import { Dimensions, View } from "react-native";
+import { Dimensions, NativeModules, View } from "react-native";
 import { Home as HomeIcon, Image as ImageIcon } from "react-native-feather";
 import RNFS from 'react-native-fs';
 import { launchImageLibrary } from "react-native-image-picker";
@@ -15,6 +15,7 @@ import Screens, { PreviewModes } from "../constants/screens";
 import { useSnackbar } from "../providers/snackbar/SnackbarContext";
 import { useTheme } from "../providers/theme/ThemeContext";
 
+const { CLAHEBridge } = NativeModules;
 
 const CameraScreen = () => {
     const theme = useTheme();
@@ -23,6 +24,31 @@ const CameraScreen = () => {
     const [flash, setFlash] = useState<'on' | 'off'>('off');
     const { showSnackbar } = useSnackbar();
     const cameraRef = useRef<CameraType>(null);
+
+    const handleImageForPreview = async (sourcePath: string, mode: string) => {
+        try {
+            const fileName = sourcePath.split('/').pop();
+            const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+            await RNFS.copyFile(sourcePath, destPath);
+            console.log(`Saved image to: file://${destPath}`);
+
+            // Check if image is blurred using CLAHEBridge
+            const isBlurred = await CLAHEBridge.isImageBlurred(destPath);
+            if (isBlurred) {
+                showSnackbar("Image appears to be blurred. Please try again.", Colors.WARN);
+                return;
+            }
+
+            navigation.navigate(Screens.PREVIEW, {
+                fileUri: `file://${destPath}`,
+                mode
+            });
+        } catch (e) {
+            console.error("Failed to prepare image for preview:", e);
+            showSnackbar("Could not prepare image for preview", Colors.WARN);
+        }
+    };
 
     // Get screen dimensions for outline sizing
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -67,18 +93,7 @@ const CameraScreen = () => {
 
             console.log("Captured photo:", photo);
 
-            const sourcePath = photo.path; // e.g., /data/user/0/com.app/cache/photoxyz.jpg
-            const fileName = sourcePath.split('/').pop();
-            const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-
-            await RNFS.moveFile(sourcePath, destPath);
-
-            console.log(`Saved photo to: file://${destPath}`);
-
-            navigation.navigate(Screens.PREVIEW, {
-                fileUri: `file://${destPath}`,
-                mode: PreviewModes.CAMERA
-            });
+            await handleImageForPreview(photo.path, PreviewModes.CAMERA);
 
         } catch (e) {
             console.error('Failed to capture photo:', e);
@@ -97,15 +112,7 @@ const CameraScreen = () => {
                 const uri = response.assets[0]?.uri;
                 if (uri) {
                     // Uri is a tmp path and can be destroyed at any time, need to move to app storage
-                    const fileName = uri.split('/').pop(); // extract the file name
-                    const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-
-                    // Copy the image to Documents
-                    await RNFS.copyFile(uri, destPath);
-                    console.log(`New Path: file://${destPath}`);
-
-                    // Now navigate with the persistent path
-                    navigation.navigate(Screens.PREVIEW, { fileUri: `file://${destPath}`, mode: PreviewModes.UPLOAD });
+                    await handleImageForPreview(uri, PreviewModes.UPLOAD);
                 } else {
                     showSnackbar("Unable to get selected image URI.", Colors.WARN);
                 }
