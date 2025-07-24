@@ -88,7 +88,14 @@ const HistoryScreen = () => {
             Alert.alert("No records present to select!");
             return;
         }
-        setIsSelection(prevValue => !prevValue)
+
+        setIsSelection(prevValue => {
+            const newValue = !prevValue;
+            if (!newValue) {
+                setSelectedIds(new Set());
+            }
+            return newValue;
+        });
     }
 
     const handleSortCardOnPress = () => {
@@ -97,13 +104,20 @@ const HistoryScreen = () => {
     }
 
     const handleCancelSelectionOnPress = () => {
+        setSelectedIds(new Set());
         setIsSelection(false)
     }
 
     const handleSelectAllOnPress = () => {
-        const allIds = new Set(records.map(record => record.id!));
-        setSelectedIds(allIds);
-    }
+        if (selectedIds.size === records.length) {
+            // Already full — clear all
+            setSelectedIds(new Set());
+        } else {
+            // Not full — select all
+            const allIds = new Set(records.map(record => record.id!));
+            setSelectedIds(allIds);
+        }
+    };
 
     const toggleSelection = (id: number) => {
         setSelectedIds(prev => {
@@ -250,10 +264,7 @@ const HistoryScreen = () => {
 
             {isSelection && (
                 <View style={{
-                    position: 'absolute',
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
+                    paddingTop: 8,
                     flexDirection: 'row',
                     justifyContent: 'space-between'
                 }}>
