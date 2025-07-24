@@ -1,7 +1,7 @@
 import { NativeModules } from 'react-native';
 import RNFS from "react-native-fs";
 import { DatabaseHandler } from "./dbHandler";
-import { cropAndMapBack } from './modelHandler';
+import { cropAndMapBack, runEfficientNetInference, runShuffleNetInference } from './modelHandler';
 
 // TODO: Complete the Android part of the bridge
 const { CLAHEBridge } = NativeModules;
@@ -17,10 +17,6 @@ export class ImageProcessingPipeline {
         private uncertainity: number = Number.NEGATIVE_INFINITY,
         private databaseHandler = DatabaseHandler.getInstance()
     ) {
-    }
-
-    private async sleep(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async roiAndCropImage() {
@@ -48,13 +44,29 @@ export class ImageProcessingPipeline {
     }
 
     async runModel1() {
-        await this.sleep(1000);
-        // TODO: actual implementation
+        const result = await runEfficientNetInference(this.fileUri);
+        if (!result) throw new Error("Inference failed!");
+
+        this.probability = result.mean;
+        this.uncertainity = result.stdDev;
     }
 
     async runModel2() {
-        await this.sleep(1000);
-        // TODO: actual implementation
+        const result = await runShuffleNetInference(this.fileUri);
+        if (!result) throw new Error("Inference failed!");
+
+        if (this.probability === Number.NEGATIVE_INFINITY) {
+            // Model 2 is run separately
+            this.probability = result.mean;
+            this.uncertainity = result.stdDev;
+        } else {
+            // Model 2 is run in Ensemble mode with weighted averaging
+            const weight1 = 0.7;
+            const weight2 = 1 - weight1;
+
+            this.probability = (this.probability * weight1) + (result.mean * weight2);
+            this.uncertainity = (this.uncertainity * weight1) + (result.stdDev * weight2);
+        }
     }
 
     async writeResultsToStorage() {

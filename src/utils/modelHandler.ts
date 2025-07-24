@@ -7,13 +7,15 @@ import { Image, NativeModules, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 
 const { CLAHEBridge } = NativeModules;
+const NUM_OF_PASSES = 10;
+
+const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 
 async function getModelPath(modelType: "yolo.onnx" | "efficientnet.onnx" | "shufflenet.onnx") {
     // Determine the correct path for the model based on the platform
     let modelPath: string;
 
     if (Platform.OS === 'android') {
-        // TODO: CHECK IF THE MODELS EXIST IN ANDROID
         // Copy the model file from Android assets to the document directory if not already present
         const destPath = `${RNFS.DocumentDirectoryPath}/${modelType}`;
         const fileExists = await RNFS.exists(destPath);
@@ -42,7 +44,7 @@ export async function cropAndMapBack(fileUri: string) {
     let croppedUri;
 
     try {
-        console.log("CropAndMapBack method called");
+        console.log("cropAndMapBack method called");
 
         // Get original image dimensions (before resize)
         const uriForSize = fileUri.replace('file://', '');
@@ -167,5 +169,80 @@ export async function cropAndMapBack(fileUri: string) {
         return newPath;
     } catch (err) {
         console.error("Error during model session creation or inference: ", err);
+    }
+}
+
+async function inferAndSummarize(modelType: "shufflenet.onnx" | "efficientnet.onnx", fileUri: string) {
+    let probabilities = [];
+
+    const modelPath = await getModelPath(modelType);
+    console.log(`Loading ${modelType} Model from path: `, modelPath);
+
+    const session = await ort.InferenceSession.create(modelPath);
+    console.log("Inference session created successfully!");
+
+    const imageBase64 = await RNFS.readFile(fileUri, 'base64');
+    const imageBuffer = Buffer.from(imageBase64, 'base64');
+    const decoded = jpeg.decode(imageBuffer, { useTArray: true });
+    const { width, height, data } = decoded;
+
+    console.log(`Dimensions: ${width}x${height}`);
+
+    const targetWidth = 224;
+    const targetHeight = 224;
+    const floatData = new Float32Array(1 * 3 * targetHeight * targetWidth);
+    // ImageNet normalization parameters
+    const im_mean = [0.485, 0.456, 0.406];
+    const im_std = [0.229, 0.224, 0.225];
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const pixelIndex = (y * width + x);
+            // Normalize per ImageNet mean/std
+            const r = (data[pixelIndex * 4] / 255.0 - im_mean[0]) / im_std[0];
+            const g = (data[pixelIndex * 4 + 1] / 255.0 - im_mean[1]) / im_std[1];
+            const b = (data[pixelIndex * 4 + 2] / 255.0 - im_mean[2]) / im_std[2];
+
+            const chwIndex = y * targetWidth + x;
+            floatData[chwIndex] = r;
+            floatData[chwIndex + targetWidth * targetHeight] = g;
+            floatData[chwIndex + 2 * targetWidth * targetHeight] = b;
+        }
+    }
+
+    const inputTensor = new ort.Tensor('float32', floatData, [1, 3, targetHeight, targetWidth]);
+
+    for (let i = 0; i < NUM_OF_PASSES; i++) {
+        const feeds: Record<string, ort.Tensor> = { [session.inputNames[0]]: inputTensor };
+        const outputMap = await session.run(feeds);
+        const logit = outputMap.output.data[0] as number;
+        const prob = sigmoid(logit) * 100; // Given as a decimal
+        probabilities.push(prob);
+    }
+
+    console.log("Probabilities across passes:", probabilities);
+
+    const mean = probabilities.reduce((sum, val) => sum + val, 0) / probabilities.length;
+    const variance = probabilities.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / probabilities.length;
+    const stdDev = Math.sqrt(variance);
+
+    return { mean, stdDev, allProbs: probabilities };
+}
+
+export async function runEfficientNetInference(fileUri: string) {
+    try {
+        console.log("runEfficientNetInference method called.");
+        return await inferAndSummarize("efficientnet.onnx", fileUri);
+    } catch (err) {
+        console.error("Error occurred during EfficientNet session creation or inference: ", err);
+    }
+}
+
+export async function runShuffleNetInference(fileUri: string) {
+    try {
+        console.log("runShuffleNetInference method called.");
+        return await inferAndSummarize("shufflenet.onnx", fileUri);
+    } catch (err) {
+        console.error("Error occurred during ShuffleNet session creation or inference: ", err);
     }
 }

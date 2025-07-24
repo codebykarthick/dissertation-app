@@ -23,6 +23,8 @@ RCT_EXPORT_METHOD(applyClahe:(NSString *)imagePath
     // Convert UIImage to cv::Mat
     cv::Mat mat;
     UIImageToMat(inputImage, mat);
+    // Ensure correct color channels: drop alpha
+    cv::cvtColor(mat, mat, cv::COLOR_BGRA2BGR);
 
     // Convert to Lab color space
     cv::Mat lab;
@@ -71,6 +73,8 @@ RCT_EXPORT_METHOD(makeLetterBox:(NSString *)imagePath
     // Convert UIImage to cv::Mat
     cv::Mat mat;
     UIImageToMat(inputImage, mat);
+    // Ensure correct color channels: drop alpha
+    cv::cvtColor(mat, mat, cv::COLOR_BGRA2BGR);
 
     int srcWidth = mat.cols;
     int srcHeight = mat.rows;
@@ -84,7 +88,8 @@ RCT_EXPORT_METHOD(makeLetterBox:(NSString *)imagePath
 
     // Resize image if necessary
     cv::Mat resized;
-    cv::resize(mat, resized, cv::Size(newWidth, newHeight));
+    // High-quality Lanczos resize to match Python’s behavior
+    cv::resize(mat, resized, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_LANCZOS4);
 
     // Create black canvas
     cv::Mat canvas(dstHeight, dstWidth, mat.type(), cv::Scalar(0, 0, 0));

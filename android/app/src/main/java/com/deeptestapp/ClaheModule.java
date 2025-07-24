@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.facebook.react.bridge.*;
 import org.opencv.android.Utils;
 import org.opencv.core.*;
+import org.opencv.core.Size;
 import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
@@ -38,6 +39,8 @@ public class ClaheModule extends ReactContextBaseJavaModule {
 
             Mat mat = new Mat();
             Utils.bitmapToMat(bitmap, mat);
+            // Drop alpha channel, convert BGRA→BGR
+            Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2BGR);
 
             Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2Lab);
             java.util.List<Mat> lab = new java.util.ArrayList<>(3);
@@ -65,7 +68,6 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             promise.reject("CLAHE_EXCEPTION", e.getMessage());
         }
     }
-}
     @ReactMethod
     public void makeLetterBox(String imagePath, int targetWidth, int targetHeight, Promise promise) {
         try {
@@ -82,7 +84,16 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             int newWidth = Math.round(srcWidth * scale);
             int newHeight = Math.round(srcHeight * scale);
 
-            Bitmap resized = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+            // High-quality Lanczos resize using OpenCV
+            Mat mat = new Mat();
+            Utils.bitmapToMat(bitmap, mat);
+            // Drop alpha channel
+            Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2BGR);
+            Mat resizedMat = new Mat();
+            Imgproc.resize(mat, resizedMat, new Size(newWidth, newHeight), 0, 0, Imgproc.INTER_LANCZOS4);
+            Bitmap resized = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(resizedMat, resized);
+
             Bitmap canvas = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
 
             // Fill canvas with black

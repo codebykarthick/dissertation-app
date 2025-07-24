@@ -109,7 +109,10 @@ const ResultScreen = () => {
                                     size={120}
                                     progress={animatedProgress}
                                     showsText={true}
-                                    formatText={() => `${Math.round(animatedProgress * 100)} ± ${Math.round(animatedUncertainty)}%`}
+                                    formatText={() => {
+                                        const uncertaintyDisplay = record.uncertainity < 0.01 ? '' : ` ± ${Math.round(animatedUncertainty)}%`;
+                                        return `${Math.round(animatedProgress * 100)}%${uncertaintyDisplay}`;
+                                    }}
                                     color={getProbabilityColor(record.probability)}
                                     unfilledColor="#e0e0e0"
                                     borderWidth={0}
