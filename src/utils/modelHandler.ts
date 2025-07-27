@@ -1,10 +1,10 @@
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImageEditor from '@react-native-community/image-editor';
-import { Buffer } from 'buffer';
-import jpeg from 'jpeg-js';
+
 import * as ort from "onnxruntime-react-native";
 import { Image, NativeModules, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
+import { deleteFileIfExist, readPngDataFromFile } from './fileHandler';
 
 const { CLAHEBridge } = NativeModules;
 const NUM_OF_PASSES = 10;
@@ -63,23 +63,23 @@ export async function cropAndMapBack(fileUri: string) {
 
         console.log("Session created successfully!");
 
-        // Resize the image to 640x640
+        // Resize the image to 640x640 as PNG to prevent loss of data
         const resizedImage = await ImageResizer.createResizedImage(
             fileUri,
             640,
             640,
-            'JPEG',
+            'PNG',
             100
         );
         const resizedPath = resizedImage.path;
 
-        // Load the resized image as base64
-        const imageBase64 = await RNFS.readFile(resizedPath, 'base64');
-        // Convert to raw buffer
-        const imageBuffer = Buffer.from(imageBase64, 'base64');
-        // Decode JPEG to RGBA pixel data
-        const decoded = jpeg.decode(imageBuffer, { useTArray: true });
-        const { width, height, data } = decoded;
+        // // Load the resized image as base64
+        // const imageBase64 = await RNFS.readFile(resizedPath, 'base64');
+        // // Convert to raw buffer
+        // const imageBuffer = Buffer.from(imageBase64, 'base64');
+        // Decode PNG to RGBA pixel data
+        const decodedPng = await readPngDataFromFile(resizedPath);
+        const { width, height, data } = decodedPng;
 
         console.log(`Dimensions: ${width}x${height}`);
 
@@ -108,7 +108,7 @@ export async function cropAndMapBack(fileUri: string) {
         const feeds: Record<string, ort.Tensor> = { [session.inputNames[0]]: inputTensor };
 
         const outputMap = await session.run(feeds);
-        console.log("Inference run. ", outputMap);
+        console.log("RoI Inference run. ", outputMap);
 
         // === Post‑process: pick highest‑confidence box and map back to original ===
         const detections = outputMap.output0.data as Float32Array;
@@ -141,21 +141,19 @@ export async function cropAndMapBack(fileUri: string) {
 
         console.log(`Mapped to original: [${origX1}, ${origY1}] to [${origX2}, ${origY2}]`);
 
-        // FIXME: We save it as JPEG multiple times, which can lead to loss of quality.
-        // Crop the original image using ImageEditor
+        await deleteFileIfExist(resizedPath);
+
         try {
             const cropData = {
                 offset: { x: origX1, y: origY1 },
                 size: { width: origX2 - origX1, height: origY2 - origY1 },
-                format: "jpeg"
+                format: "png"
             } as const;
             croppedUri = await ImageEditor.cropImage(fileUri, cropData);
             console.log('Cropped image saved at: ', croppedUri);
         } catch (cropErr) {
             console.error('Failed to crop image:', cropErr);
         }
-
-        console.log(`${croppedUri?.width}x${croppedUri?.height}`)
 
         // Check if croppedUri is defined
         if (!croppedUri) {
@@ -165,6 +163,8 @@ export async function cropAndMapBack(fileUri: string) {
         const rawPath = croppedUri.uri.replace("file://", "");
         console.log("Letterboxing image into 224x224 from: ", rawPath);
         const newPath = await CLAHEBridge.makeLetterBox(rawPath, 224, 224);
+
+        await deleteFileIfExist(croppedUri.uri);
 
         return newPath;
     } catch (err) {
@@ -181,10 +181,10 @@ async function inferAndSummarize(modelType: "shufflenet.onnx" | "efficientnet.on
     const session = await ort.InferenceSession.create(modelPath);
     console.log("Inference session created successfully!");
 
-    const imageBase64 = await RNFS.readFile(fileUri, 'base64');
-    const imageBuffer = Buffer.from(imageBase64, 'base64');
-    const decoded = jpeg.decode(imageBuffer, { useTArray: true });
-    const { width, height, data } = decoded;
+    // const imageBase64 = await RNFS.readFile(fileUri, 'base64');
+    // const imageBuffer = Buffer.from(imageBase64, 'base64');
+    const decodedPng = await readPngDataFromFile(fileUri);
+    const { width, height, data } = decodedPng;
 
     console.log(`Dimensions: ${width}x${height}`);
 

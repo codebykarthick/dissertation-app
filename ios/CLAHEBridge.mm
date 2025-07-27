@@ -10,6 +10,8 @@ RCT_EXPORT_MODULE();
   return NO;
 }
 
+
+
 RCT_EXPORT_METHOD(applyClahe:(NSString *)imagePath
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
@@ -19,38 +21,41 @@ RCT_EXPORT_METHOD(applyClahe:(NSString *)imagePath
       reject(@"CLAHE_IMAGE_ERROR", @"Failed to load image from path", nil);
       return;
     }
-
+    
     // Convert UIImage to cv::Mat
     cv::Mat mat;
     UIImageToMat(inputImage, mat);
     // Ensure correct color channels: drop alpha
     cv::cvtColor(mat, mat, cv::COLOR_BGRA2BGR);
-
+    
     // Convert to Lab color space
     cv::Mat lab;
     cv::cvtColor(mat, lab, cv::COLOR_BGR2Lab);
-
+    
     // Split channels
     std::vector<cv::Mat> channels;
     cv::split(lab, channels);
-
-    // Apply CLAHE to L channel
-    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
-    clahe->setClipLimit(2.0);
+    
+    // Create CLAHE with adjusted parameters to reduce artifacts
+    double clipLimit = 1.5; // lower to reduce contrast amplification artifacts
+    cv::Size tileGridSize(16, 16); // larger tiles for smoother transitions
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(clipLimit, tileGridSize);
     clahe->apply(channels[0], channels[0]);
-
+    // Optional: smooth the L-channel to reduce block artifacts
+    cv::GaussianBlur(channels[0], channels[0], cv::Size(3, 3), 0);
+    
     // Merge back
     cv::merge(channels, lab);
     cv::cvtColor(lab, mat, cv::COLOR_Lab2BGR);
-
+    
     // Convert back to UIImage
     UIImage *outputImage = MatToUIImage(mat);
-
+    
     // Create a new file path
-    NSString *outputPath = [imagePath stringByReplacingOccurrencesOfString:@".jpg" withString:@"_clahe.jpg"];
-    NSData *imageData = UIImageJPEGRepresentation(outputImage, 1.0);
+    NSString *outputPath = [imagePath stringByReplacingOccurrencesOfString:@".png" withString:@"_clahe.png"];
+    NSData *imageData = UIImagePNGRepresentation(outputImage);
     [imageData writeToFile:outputPath atomically:YES];
-
+    
     resolve([@"file://" stringByAppendingString:outputPath]);
   } @catch (NSException *exception) {
     reject(@"CLAHE_EXCEPTION", exception.reason, nil);
@@ -69,53 +74,51 @@ RCT_EXPORT_METHOD(makeLetterBox:(NSString *)imagePath
       reject(@"LETTERBOX_IMAGE_ERROR", @"Failed to load image from path", nil);
       return;
     }
-
+    
     // Convert UIImage to cv::Mat
     cv::Mat mat;
     UIImageToMat(inputImage, mat);
     // Ensure correct color channels: drop alpha
     cv::cvtColor(mat, mat, cv::COLOR_BGRA2BGR);
-
+    
     int srcWidth = mat.cols;
     int srcHeight = mat.rows;
     int dstWidth = [targetWidth intValue];
     int dstHeight = [targetHeight intValue];
-
+    
     // Compute scale ratio
     double scale = std::min((double)dstWidth / srcWidth, (double)dstHeight / srcHeight);
     int newWidth = std::round(srcWidth * scale);
     int newHeight = std::round(srcHeight * scale);
-
+    
     // Resize image if necessary
     cv::Mat resized;
     // High-quality Lanczos resize to match Python’s behavior
     cv::resize(mat, resized, cv::Size(newWidth, newHeight), 0, 0, cv::INTER_LANCZOS4);
-
+    
     // Create black canvas
     cv::Mat canvas(dstHeight, dstWidth, mat.type(), cv::Scalar(0, 0, 0));
-
+    
     // Compute top-left corner for placing resized image
     int x = (dstWidth - newWidth) / 2;
     int y = (dstHeight - newHeight) / 2;
-
+    
     // Copy resized image onto black canvas
     resized.copyTo(canvas(cv::Rect(x, y, resized.cols, resized.rows)));
-
+    
     // Convert back to UIImage
     UIImage *outputImage = MatToUIImage(canvas);
-
+    
     // Save image
-    NSString *outputPath = [imagePath stringByReplacingOccurrencesOfString:@".jpg" withString:@"_letterbox.jpg"];
-    NSData *imageData = UIImageJPEGRepresentation(outputImage, 1.0);
+    NSString *outputPath = [imagePath stringByReplacingOccurrencesOfString:@".png" withString:@"_letterbox.png"];
+    NSData *imageData = UIImagePNGRepresentation(outputImage);
     [imageData writeToFile:outputPath atomically:YES];
-
+    
     resolve([@"file://" stringByAppendingString:outputPath]);
   } @catch (NSException *exception) {
     reject(@"LETTERBOX_EXCEPTION", exception.reason, nil);
   }
 }
-
-@end
 
 
 RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
@@ -127,25 +130,86 @@ RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
       reject(@"BLUR_CHECK_IMAGE_ERROR", @"Failed to load image from path", nil);
       return;
     }
-
+    
     cv::Mat mat;
     UIImageToMat(inputImage, mat);
     cv::cvtColor(mat, mat, cv::COLOR_BGRA2GRAY);
-
+    
     // Compute Laplacian and its variance
     cv::Mat laplacian;
     cv::Laplacian(mat, laplacian, CV_64F);
-
+    
     cv::Scalar mean, stddev;
     cv::meanStdDev(laplacian, mean, stddev);
     double variance = stddev[0] * stddev[0];
-
+    
     // Threshold for blurriness (you can adjust this empirically)
     double threshold = 100.0;
     BOOL isBlurred = variance < threshold;
-
+    
     resolve(@(isBlurred));
   } @catch (NSException *exception) {
     reject(@"BLUR_CHECK_EXCEPTION", exception.reason, nil);
   }
 }
+
+RCT_EXPORT_METHOD(readPNGFromFile:(NSString *)imagePath
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+  @try {
+    UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
+    if (!image) {
+      reject(@"READ_PNG_ERROR", @"Failed to load image from path", nil);
+      return;
+    }
+
+    CGImageRef cgImage = image.CGImage;
+    size_t width = CGImageGetWidth(cgImage);
+    size_t height = CGImageGetHeight(cgImage);
+    size_t bytesPerPixel = 4;
+    size_t bytesPerRow = bytesPerPixel * width;
+    size_t bitsPerComponent = 8;
+
+    UInt8 *rawData = (UInt8 *)malloc(height * bytesPerRow);
+    if (!rawData) {
+      reject(@"READ_PNG_ERROR", @"Failed to allocate memory", nil);
+      return;
+    }
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
+                                                 bitsPerComponent, bytesPerRow, colorSpace,
+                                                 kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Big);
+
+    if (!context) {
+      free(rawData);
+      reject(@"READ_PNG_ERROR", @"Failed to create context", nil);
+      return;
+    }
+
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
+    CGContextRelease(context);
+    CGColorSpaceRelease(colorSpace);
+
+    NSMutableData *rgbaData = [NSMutableData dataWithCapacity:width * height * 4];
+    for (size_t i = 0; i < width * height; i++) {
+      [rgbaData appendBytes:&rawData[i * 4] length:1];     // R
+      [rgbaData appendBytes:&rawData[i * 4 + 1] length:1]; // G
+      [rgbaData appendBytes:&rawData[i * 4 + 2] length:1]; // B
+      [rgbaData appendBytes:&rawData[i * 4 + 3] length:1]; // A
+    }
+
+    free(rawData);
+
+    NSDictionary *result = @{
+      @"width": @(width),
+      @"height": @(height),
+      @"rgbaBuffer": [rgbaData base64EncodedStringWithOptions:0]
+    };
+    resolve(result);
+  } @catch (NSException *exception) {
+    reject(@"READ_PNG_EXCEPTION", exception.reason, nil);
+  }
+}
+
+@end

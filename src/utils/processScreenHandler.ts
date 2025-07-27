@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native';
-import RNFS from "react-native-fs";
 import { DatabaseHandler } from "./dbHandler";
+import { deleteFileIfExist } from './fileHandler';
 import { cropAndMapBack, runEfficientNetInference, runShuffleNetInference } from './modelHandler';
 
 const { CLAHEBridge } = NativeModules;
@@ -22,31 +22,28 @@ export class ImageProcessingPipeline {
 
     async roiAndCropImage() {
         let response = await cropAndMapBack(this.fileUri);
-        // TODO: THIS IS ONLY FOR Debugging. Save it in croppedUri instead
-        this.fileUri = response!
+        // Store the intermediates in croppedUri
+        this.croppedUri = response! as string
     }
 
     async applyContrastEqualisation() {
         try {
-            const rawPath = this.fileUri.replace("file://", "");
+            const rawPath = this.croppedUri.replace("file://", "");
             console.log("Loading image for CLAHE from: ", rawPath);
 
             const enhancedUri = await CLAHEBridge.applyClahe(rawPath);
 
-            if (await RNFS.exists(this.fileUri)) {
-                await RNFS.unlink(this.fileUri);
-                console.log("Deleted resized image at:", this.fileUri);
-            }
+            await deleteFileIfExist(this.croppedUri);
 
-            this.fileUri = enhancedUri;
-            console.log("CLAHE applied. New file path:", this.fileUri);
+            this.croppedUri = enhancedUri;
+            console.log("CLAHE applied. New file path:", this.croppedUri);
         } catch (err) {
             console.warn("Failed to apply CLAHE:", err);
         }
     }
 
     async runModel1() {
-        const result = await runEfficientNetInference(this.fileUri);
+        const result = await runEfficientNetInference(this.croppedUri);
         if (!result) throw new Error("Inference failed!");
 
         this.probability = result.mean;
@@ -54,7 +51,7 @@ export class ImageProcessingPipeline {
     }
 
     async runModel2() {
-        const result = await runShuffleNetInference(this.fileUri);
+        const result = await runShuffleNetInference(this.croppedUri);
         if (!result) throw new Error("Inference failed!");
 
         if (this.probability === Number.NEGATIVE_INFINITY) {
@@ -73,11 +70,7 @@ export class ImageProcessingPipeline {
 
     async writeResultsToStorage() {
         // Delete the temp CroppedUri
-        const croppedFileExists = await RNFS.exists(this.croppedUri);
-        if (croppedFileExists) {
-            console.log("Deleting cached photo: ", this.croppedUri);
-            await RNFS.unlink(this.croppedUri);
-        }
+        // await deleteFileIfExist(this.croppedUri);
 
         if (this.probability === Number.NEGATIVE_INFINITY &&
             this.uncertainity === Number.NEGATIVE_INFINITY) {
@@ -86,8 +79,9 @@ export class ImageProcessingPipeline {
             this.uncertainity = Math.random() * 10;
         }
 
+        // TODO: Should send this.fileUri instead. This is only for debugging.
         let record = {
-            fileUri: this.fileUri,
+            fileUri: this.croppedUri,
             name: this.name,
             selectedType: this.selectedType,
             selectedModel: this.selectedModel,

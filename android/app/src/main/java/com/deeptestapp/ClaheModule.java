@@ -56,10 +56,10 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             Bitmap output = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(mat, output);
 
-            String outputPath = imagePath.replace(".jpg", "_clahe.jpg");
+            String outputPath = imagePath.replace(".png", "_clahe.png");
             File outFile = new File(outputPath);
             FileOutputStream out = new FileOutputStream(outFile);
-            output.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            output.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.close();
 
             promise.resolve("file://" + outputPath);
@@ -106,10 +106,10 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             drawingCanvas.drawBitmap(resized, left, top, null);
 
             // Save result
-            String outputPath = imagePath.replace(".jpg", "_letterbox.jpg");
+            String outputPath = imagePath.replace(".png", "_letterbox.png");
             File outFile = new File(outputPath);
             FileOutputStream out = new FileOutputStream(outFile);
-            canvas.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            canvas.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.close();
 
             promise.resolve("file://" + outputPath);
