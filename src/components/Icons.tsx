@@ -1,6 +1,5 @@
 import { ZapOff as FlashOffIcon, Zap as FlashOnIcon } from "react-native-feather";
 import Svg, { Circle, Rect } from "react-native-svg";
-import { useTheme } from "../providers/theme/ThemeContext";
 
 type IconProps = {
     stroke: string;
@@ -9,14 +8,14 @@ type IconProps = {
 }
 
 export const ThemedFlashIcon = ({ flash }: { flash: 'on' | 'off' }) => {
-    const theme = useTheme();
+    const white = "#FFFFFF";
 
     if (flash === "on") {
         return (
             <FlashOnIcon
                 width={36}
                 height={36}
-                stroke={theme.text}
+                stroke={white}
             />
         )
     }
@@ -25,7 +24,7 @@ export const ThemedFlashIcon = ({ flash }: { flash: 'on' | 'off' }) => {
         <FlashOffIcon
             width={36}
             height={36}
-            stroke={theme.text}
+            stroke={white}
         />
     )
 };

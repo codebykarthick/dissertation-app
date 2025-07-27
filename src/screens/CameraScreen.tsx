@@ -9,7 +9,6 @@ import { Camera, useCameraDevice } from "react-native-vision-camera";
 import { InfoBanner } from "../components/Banners";
 import { IconButton } from "../components/Buttons";
 import { CameraShutterIcon, TestOutlineIcon, ThemedFlashIcon } from "../components/Icons";
-import Spacer from "../components/Spacer";
 import Colors from "../constants/colors";
 import Screens, { PreviewModes } from "../constants/screens";
 import { useSnackbar } from "../providers/snackbar/SnackbarContext";
@@ -125,54 +124,88 @@ const CameraScreen = () => {
 
     const cameraDevice = useCameraDevice('back');
     const isCameraOn = cameraDevice && cameraPermission === "granted"
-
-    console.log(theme.text);
+    const white = "#FFFFFF";
 
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <IconButton onPress={navigateHistoryOnPress}><HomeIcon width={36} height={36} stroke={theme.text} /></IconButton>
-            <Spacer height={16} />
-            <View style={{ height: "80%" }}>
-                {isCameraOn ? <>
-                    <View style={{ flex: 1, position: 'relative' }}>
-                        <Camera
-                            ref={cameraRef}
-                            photo={true}
-                            device={cameraDevice}
-                            isActive={true}
-                            style={{ flex: 1 }}
-                            photoQualityBalance="quality"
-                        />
-                        <View style={{
-                            position: 'absolute',
-                            top: '37%',
-                            left: '50%',
-                            width: outlineWidth,
-                            height: outlineHeight,
-                            transform: [
-                                { translateX: -0.5 * outlineWidth },
-                                { translateY: -0.5 * outlineHeight }
-                            ],
-                            opacity: 0.6,
-                        }}>
-                            <TestOutlineIcon stroke={theme.primary} width={outlineWidth} height={outlineHeight} />
+        <View style={{ flex: 1 }}>
+            {isCameraOn ? (
+                <View style={{ flex: 1, position: 'relative' }}>
+                    <Camera
+                        ref={cameraRef}
+                        photo={true}
+                        device={cameraDevice}
+                        isActive={true}
+                        style={{ flex: 1 }}
+                        photoQualityBalance="quality"
+                    />
+                    <View style={{
+                        position: 'absolute',
+                        top: '37%',
+                        left: '50%',
+                        width: outlineWidth,
+                        height: outlineHeight,
+                        transform: [
+                            { translateX: -0.5 * outlineWidth },
+                            { translateY: -0.5 * outlineHeight }
+                        ],
+                        opacity: 0.6,
+                    }}>
+                        <TestOutlineIcon stroke={theme.primary} width={outlineWidth} height={outlineHeight} />
+                    </View>
+                    <View style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        justifyContent: 'space-between',
+                        padding: 20,
+                    }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                            <IconButton onPress={navigateHistoryOnPress}>
+                                <HomeIcon width={36} height={36} stroke={white} />
+                            </IconButton>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <IconButton onPress={openImagePickerOnPress}>
+                                <ImageIcon width={36} height={36} stroke={white} />
+                            </IconButton>
+                            <IconButton onPress={takePhotoOnPress}>
+                                <CameraShutterIcon stroke={white} />
+                            </IconButton>
+                            <IconButton onPress={toggleFlashOnPress}>
+                                <ThemedFlashIcon flash={flash} />
+                            </IconButton>
                         </View>
                     </View>
-                </> :
-                    <InfoBanner style={{ flex: 1, width: '100%' }}>Please allow Camera permission to take photos of test kits in Phone Settings.</InfoBanner>}
-            </View>
-            <Spacer height={28} />
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <IconButton onPress={openImagePickerOnPress}><ImageIcon width={36} height={36} stroke={theme.text} /></IconButton>
-                {isCameraOn && (
-                    <>
-                        <IconButton onPress={takePhotoOnPress}>
-                            <CameraShutterIcon stroke={theme.text} />
-                        </IconButton>
-                        <IconButton onPress={toggleFlashOnPress}><ThemedFlashIcon flash={flash} /></IconButton>
-                    </>
-                )}
-            </View>
+                </View>
+            ) : (
+                <>
+                    <InfoBanner style={{ flex: 1, width: '100%' }}>
+                        Please allow Camera permission to take photos of test kits in Phone Settings.
+                    </InfoBanner>
+                    <View style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        justifyContent: 'space-between',
+                        padding: 20,
+                    }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                            <IconButton onPress={navigateHistoryOnPress}>
+                                <HomeIcon width={36} height={36} stroke={theme.text} />
+                            </IconButton>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <IconButton onPress={openImagePickerOnPress}>
+                                <ImageIcon width={36} height={36} stroke={theme.text} />
+                            </IconButton>
+                        </View>
+                    </View>
+                </>
+            )}
         </View>
     )
 }
