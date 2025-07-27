@@ -15,6 +15,12 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import android.graphics.Color;
+import android.util.Base64;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
 
 public class ClaheModule extends ReactContextBaseJavaModule {
 
@@ -46,9 +52,11 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             java.util.List<Mat> lab = new java.util.ArrayList<>(3);
             Core.split(mat, lab);
 
-            CLAHE clahe = Imgproc.createCLAHE();
-            clahe.setClipLimit(2.0);
+            CLAHE clahe = Imgproc.createCLAHE(1.5, new Size(16, 16));
             clahe.apply(lab.get(0), lab.get(0));
+
+            // Apply Gaussian blur to reduce artifacts
+            Imgproc.GaussianBlur(lab.get(0), lab.get(0), new Size(3, 3), 0);
 
             Core.merge(lab, mat);
             Imgproc.cvtColor(mat, mat, Imgproc.COLOR_Lab2BGR);
@@ -147,5 +155,37 @@ public class ClaheModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             Log.e("BLUR_CHECK", "Error checking image blur", e);
             promise.reject("BLUR_CHECK_EXCEPTION", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void readPNGFromFile(String imagePath, Promise promise) {
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+            if (bitmap == null) {
+                promise.reject("READ_PNG_ERROR", "Failed to decode image");
+                return;
+            }
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            int[] pixels = new int[width * height];
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+            ByteBuffer buffer = ByteBuffer.allocate(width * height * 4);
+            for (int i = 0; i < pixels.length; i++) {
+                int pixel = pixels[i];
+                buffer.put((byte) Color.red(pixel));
+                buffer.put((byte) Color.green(pixel));
+                buffer.put((byte) Color.blue(pixel));
+                buffer.put((byte) Color.alpha(pixel));
+            }
+            byte[] byteArray = buffer.array();
+            String base64 = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+            WritableMap result = Arguments.createMap();
+            result.putInt("width", width);
+            result.putInt("height", height);
+            result.putString("rgbaBuffer", base64);
+            promise.resolve(result);
+        } catch (Exception e) {
+            promise.reject("READ_PNG_EXCEPTION", e.getMessage());
         }
     }
