@@ -139,6 +139,10 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             Mat mat = new Mat();
             Utils.bitmapToMat(bitmap, mat);
             Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2GRAY);
+            // Normalize image size for consistent blur detection
+            Mat resized = new Mat();
+            Imgproc.resize(mat, resized, new Size(300, 300));
+            mat = resized;
 
             Mat laplacian = new Mat();
             Imgproc.Laplacian(mat, laplacian, CvType.CV_64F);
@@ -148,7 +152,8 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             Core.meanStdDev(laplacian, mean, stddev);
             double variance = Math.pow(stddev.get(0, 0)[0], 2);
 
-            double threshold = 100.0;
+            // Empirically tuned threshold for sharp images
+            double threshold = 20.0;
             boolean isBlurred = variance < threshold;
 
             promise.resolve(isBlurred);

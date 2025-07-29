@@ -56,11 +56,13 @@ export class DatabaseHandler {
         if (!this.db) return null;
         const now = new Date();
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const timestamp = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1)
-            .toString()
-            .padStart(2, '0')}/${now.getFullYear().toString().slice(-2)} ${now.getHours()
-                .toString()
-                .padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} (${timezone})`;
+        const timestamp = `${now.getDate().toString().padStart(2, '0')}/` +
+            `${(now.getMonth() + 1).toString().padStart(2, '0')}/` +
+            `${now.getFullYear().toString().slice(-2)} ` +
+            `${now.getHours().toString().padStart(2, '0')}:` +
+            `${now.getMinutes().toString().padStart(2, '0')}:` +
+            `${now.getSeconds().toString().padStart(2, '0')} ` +
+            `(${timezone})`;
         const query = `
       INSERT INTO PipelineResults 
       (fileUri, name, selectedType, selectedModel, probability, uncertainity, timestamp)

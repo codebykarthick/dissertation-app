@@ -134,6 +134,10 @@ RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
     cv::Mat mat;
     UIImageToMat(inputImage, mat);
     cv::cvtColor(mat, mat, cv::COLOR_BGRA2GRAY);
+    // Normalize size for consistent blur measure
+    cv::Mat resized;
+    cv::resize(mat, resized, cv::Size(300, 300));
+    mat = resized;
     
     // Compute Laplacian and its variance
     cv::Mat laplacian;
@@ -143,8 +147,8 @@ RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
     cv::meanStdDev(laplacian, mean, stddev);
     double variance = stddev[0] * stddev[0];
     
-    // Threshold for blurriness (you can adjust this empirically)
-    double threshold = 100.0;
+    // Empirically tuned threshold for sharp images
+    double threshold = 20.0;
     BOOL isBlurred = variance < threshold;
     
     resolve(@(isBlurred));

@@ -17,6 +17,7 @@ import { DatabaseHandler } from "../utils/dbHandler";
 const HistoryScreen = () => {
     const theme = useTheme();
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
     const [records, setRecords] = useState<Record[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     // const [isSort, setIsSort] = useState<boolean>(false);
@@ -31,14 +32,27 @@ const HistoryScreen = () => {
 
     // Helper to parse custom timestamp format to Date
     const parseTimestamp = (timestamp?: string): Date => {
-        // If timestamp is undefined or empty, return minimal date
         if (!timestamp) return new Date(0);
-        // Try to parse ISO or fallback to Date.parse
+        // Remove any timezone info in parentheses
+        const cleaned = timestamp.replace(/\s*\(.*\)$/, '');
+        // Match "dd/mm/yy hh:mm:ss"
+        const match = cleaned.match(
+            /^(\d{1,2})\/(\d{1,2})\/(\d{2})\s+(\d{1,2}):(\d{2}):(\d{2})$/
+        );
+        if (match) {
+            const [, dayStr, monthStr, yearStr, hourStr, minuteStr, secondStr] = match;
+            const day = parseInt(dayStr, 10);
+            const month = parseInt(monthStr, 10) - 1;
+            const year = 2000 + parseInt(yearStr, 10);
+            const hour = parseInt(hourStr, 10);
+            const minute = parseInt(minuteStr, 10);
+            const second = parseInt(secondStr, 10);
+            return new Date(year, month, day, hour, minute, second);
+        }
+        // Fallback to default parser
         const date = new Date(timestamp);
-        if (!isNaN(date.getTime())) return date;
-        // If parsing failed, fallback to epoch
-        return new Date(0);
-    }
+        return isNaN(date.getTime()) ? new Date(0) : date;
+    };
 
     // Sort records by sortField (0: date desc, 1: date asc, 2: name asc, 3: name desc)
     const sortRecordsBySortField = () => {
@@ -193,6 +207,20 @@ const HistoryScreen = () => {
         sortRecordsBySortField();
     }, [sortField]);
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 300);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchQuery]);
+
+    const filteredRecords = records.filter(record =>
+        record.name?.toLowerCase().includes(debouncedQuery.toLowerCase())
+    );
+
     return (
         <View style={{ flex: 1, padding: 20 }}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingLeft: 12, paddingRight: 12 }}>
@@ -217,7 +245,7 @@ const HistoryScreen = () => {
                 </View>
             ) : (
                 <FlatList
-                    data={records}
+                    data={filteredRecords}
                     keyExtractor={item => item.id?.toString() ?? Math.random().toString()}
                     renderItem={({ item }) => (
                         <PictureRowItem

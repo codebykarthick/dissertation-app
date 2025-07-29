@@ -81,7 +81,7 @@ export class ImageProcessingPipeline {
 
         // TODO: Should send this.fileUri instead. This is only for debugging.
         let record = {
-            fileUri: this.croppedUri,
+            fileUri: this.fileUri,
             name: this.name,
             selectedType: this.selectedType,
             selectedModel: this.selectedModel,
