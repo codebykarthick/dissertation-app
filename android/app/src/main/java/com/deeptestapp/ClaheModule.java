@@ -128,7 +128,7 @@ public class ClaheModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void isImageBlurred(String imagePath, Promise promise) {
+    public void isImageBlurred(String imagePath, @Nullable Double threshold, Promise promise) {
         try {
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             if (bitmap == null) {
@@ -153,10 +153,13 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             double variance = Math.pow(stddev.get(0, 0)[0], 2);
 
             // Empirically tuned threshold for sharp images
-            double threshold = 20.0;
-            boolean isBlurred = variance < threshold;
+            double actualThreshold = (threshold != null) ? threshold : 20.0;
+            boolean isBlurred = variance < actualThreshold;
 
-            promise.resolve(isBlurred);
+            WritableMap result = Arguments.createMap();
+            result.putBoolean("isBlurred", isBlurred);
+            result.putDouble("variance", variance);
+            promise.resolve(result);
         } catch (Exception e) {
             Log.e("BLUR_CHECK", "Error checking image blur", e);
             promise.reject("BLUR_CHECK_EXCEPTION", e.getMessage());

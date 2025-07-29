@@ -122,6 +122,7 @@ RCT_EXPORT_METHOD(makeLetterBox:(NSString *)imagePath
 
 
 RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
+                  thresholdValue:(nullable NSNumber *)thresholdValue
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
   @try {
@@ -148,10 +149,14 @@ RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
     double variance = stddev[0] * stddev[0];
     
     // Empirically tuned threshold for sharp images
-    double threshold = 20.0;
+    double threshold = thresholdValue != nil ? [thresholdValue doubleValue] : 20.0;
     BOOL isBlurred = variance < threshold;
     
-    resolve(@(isBlurred));
+    NSDictionary *result = @{
+      @"isBlurred": @(isBlurred),
+      @"variance": @(variance)
+    };
+    resolve(result);
   } @catch (NSException *exception) {
     reject(@"BLUR_CHECK_EXCEPTION", exception.reason, nil);
   }
