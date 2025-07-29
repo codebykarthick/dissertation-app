@@ -25,6 +25,7 @@ const InfoScreen = () => {
     const [selectedType, setSelectedType] = useState<string>(item.selectedType);
     const [record, setRecord] = useState<Record>(item);
     const [isEdit, setIsEdit] = useState<boolean>(false);
+    const [classification, setClassification] = useState<string>("Positive");
     const theme = useTheme();
     const navigation = useNavigation<any>();
     const databaseHandler = DatabaseHandler.getInstance();
@@ -99,6 +100,9 @@ const InfoScreen = () => {
                             />}
                             <Text style={[theme.typography.boldBody, { color: theme.text }]}>
                                 Model: <Text style={[theme.typography.body, { color: theme.text }]}>{modelRadioButtonHandler(record.selectedModel)}</Text>
+                            </Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Classification: <Text style={[theme.typography.body, { color: theme.text }]}>{classification}</Text>
                             </Text>
                             <Spacer height={16} />
                             <Text style={[theme.typography.boldBody, { marginBottom: 12 }, { color: theme.text }]}>

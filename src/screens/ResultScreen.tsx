@@ -14,6 +14,7 @@ import { Record } from "../types/DBTypes";
 
 import { AnimatedProgressBar } from "../components/Animated";
 import { DatabaseHandler } from "../utils/dbHandler";
+import { getClassification } from "../utils/modelHandler";
 import { modelRadioButtonHandler, typeRadioButtonHandler } from "../utils/radioButtonHandler";
 
 type ResultRouteProp = RouteProp<RootStackParamList, "Result">
@@ -24,6 +25,7 @@ const ResultScreen = () => {
     const databaseHandler = DatabaseHandler.getInstance();
     const [record, setRecord] = useState<Record | null>(null);
     const [uri, setUri] = useState<string | undefined>();
+    const [classification, setClassification] = useState<string>("Positive");
     const theme = useTheme();
     const navigation = useNavigation<any>();
 
@@ -31,6 +33,7 @@ const ResultScreen = () => {
         const result = await databaseHandler.getRecordById(id);
         setRecord(result);
         setUri(result?.fileUri)
+        setClassification(getClassification(result!));
     };
 
     const navigateHistoryOnPress = () => {
@@ -81,6 +84,9 @@ const ResultScreen = () => {
                             </Text>
                             <Text style={[theme.typography.boldBody, { color: theme.text }]}>
                                 Model: <Text style={[theme.typography.body, { color: theme.text }]}>{modelRadioButtonHandler(record.selectedModel)}</Text>
+                            </Text>
+                            <Text style={[theme.typography.boldBody, { color: theme.text }]}>
+                                Classification: <Text style={[theme.typography.body, { color: theme.text }]}>{classification}</Text>
                             </Text>
                             <Text style={[theme.typography.boldBody, { marginBottom: 12, color: theme.text }]}>
                                 Probability of Positive Result:

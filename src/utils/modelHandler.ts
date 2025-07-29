@@ -4,6 +4,7 @@ import ImageEditor from '@react-native-community/image-editor';
 import * as ort from "onnxruntime-react-native";
 import { Image, NativeModules, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
+import { Record as DBRecord } from '../types/DBTypes';
 import { deleteFileIfExist, readPngDataFromFile } from './fileHandler';
 
 const { CLAHEBridge } = NativeModules;
@@ -245,4 +246,24 @@ export async function runShuffleNetInference(fileUri: string) {
     } catch (err) {
         console.error("Error occurred during ShuffleNet session creation or inference: ", err);
     }
+}
+
+const modelThresholds = {
+    "m1": 0.56,
+    "m2": 0.47,
+    "both": 0.53
+}
+
+export const getClassification = (result: DBRecord): string => {
+    let threshold = modelThresholds.both;
+
+    if (result?.selectedModel === "1") {
+        threshold = modelThresholds.m1;
+    } else if (result?.selectedModel === "2") {
+        threshold = modelThresholds.m2;
+    }
+
+    let classification = result?.probability! >= threshold ? "Positive" : "Negative";
+
+    return classification;
 }
