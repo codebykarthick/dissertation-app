@@ -263,7 +263,12 @@ export const getClassification = (result: DBRecord): string => {
         threshold = modelThresholds.m2;
     }
 
-    let classification = result?.probability! >= threshold ? "Positive" : "Negative";
+    // Probability is a percentage.
+    let probability = result?.probability! / 100;
+
+    console.log(`Probability: ${probability}, threshold: ${threshold}`);
+
+    let classification = probability >= threshold ? "Positive" : "Negative";
 
     return classification;
 }
