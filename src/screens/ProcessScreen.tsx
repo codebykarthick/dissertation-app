@@ -26,6 +26,8 @@ const ProcessScreen = () => {
             const total = steps.length;
             let insertId: number | null = null;
 
+            const tic = performance.now();
+
             for (let i = 0; i < total; i++) {
                 setCurrentStep(steps[i].label);
                 const result = await steps[i].fn();
@@ -36,6 +38,9 @@ const ProcessScreen = () => {
                     insertId = result ?? null;
                 }
             }
+
+            const toc = performance.now();
+            console.log(`Total processing time: ${Math.round(toc - tic)} ms`);
 
             if (insertId !== null) {
                 navigation.replace(Screens.RESULT, { id: insertId });
