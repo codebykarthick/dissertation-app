@@ -70,7 +70,7 @@ export class ImageProcessingPipeline {
 
     async writeResultsToStorage() {
         // Delete the temp CroppedUri
-        // await deleteFileIfExist(this.croppedUri);
+        await deleteFileIfExist(this.croppedUri);
 
         if (this.probability === Number.NEGATIVE_INFINITY &&
             this.uncertainity === Number.NEGATIVE_INFINITY) {

@@ -125,6 +125,7 @@ const CameraScreen = () => {
     }
 
     const cameraDevice = useCameraDevice('back');
+    console.log(cameraDevice);
     const isCameraOn = cameraDevice && cameraPermission === "granted"
     const white = "#FFFFFF";
 

@@ -45,10 +45,11 @@ export async function cropAndMapBack(fileUri: string) {
     let croppedUri;
 
     try {
-        console.log("cropAndMapBack method called");
+        console.log("cropAndMapBack method called for: ", fileUri);
 
         // Get original image dimensions (before resize)
-        const uriForSize = fileUri.replace('file://', '');
+        const uriForSize = (Platform.OS === "android") ? fileUri : fileUri.replace('file://', '');
+        console.log("Getting the image size using: ", uriForSize);
         const { width: originalWidth, height: originalHeight } = await new Promise<{ width: number; height: number }>((resolve, reject) => {
             Image.getSize(uriForSize, (w, h) => resolve({ width: w, height: h }), reject);
         });
@@ -232,7 +233,7 @@ async function inferAndSummarize(modelType: "shufflenet.onnx" | "efficientnet.on
 
 export async function runEfficientNetInference(fileUri: string) {
     try {
-        console.log("runEfficientNetInference method called.");
+        console.log("runEfficientNetInference method called. Processing image: ", fileUri);
         return await inferAndSummarize("efficientnet.onnx", fileUri);
     } catch (err) {
         console.error("Error occurred during EfficientNet session creation or inference: ", err);
@@ -241,7 +242,7 @@ export async function runEfficientNetInference(fileUri: string) {
 
 export async function runShuffleNetInference(fileUri: string) {
     try {
-        console.log("runShuffleNetInference method called.");
+        console.log("runShuffleNetInference method called. Processing image: ", fileUri);
         return await inferAndSummarize("shufflenet.onnx", fileUri);
     } catch (err) {
         console.error("Error occurred during ShuffleNet session creation or inference: ", err);
