@@ -129,7 +129,7 @@ public class ClaheModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void isImageBlurred(String imagePath, @Nullable Double threshold, Promise promise) {
+    public void isImageBlurred(String imagePath, @Nullable Double blurThresholdValue, @Nullable Double blockThresholdValue, Promise promise) {
         try {
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             if (bitmap == null) {
@@ -139,27 +139,58 @@ public class ClaheModule extends ReactContextBaseJavaModule {
 
             Mat mat = new Mat();
             Utils.bitmapToMat(bitmap, mat);
-            Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2GRAY);
-            // Normalize image size for consistent blur detection
-            Mat resized = new Mat();
-            Imgproc.resize(mat, resized, new Size(300, 300));
-            mat = resized;
+            // Drop alpha channel and convert to BGR
+            Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGRA2BGR);
 
+            // Apply default thresholds if arguments are null
+            double blurThresh = blurThresholdValue != null ? blurThresholdValue : 50.0;
+            double blockThresh = blockThresholdValue != null ? blockThresholdValue : 10.0;
+
+            // Convert to grayscale
+            Mat gray = new Mat();
+            Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+
+            // Compute Laplacian variance for blur detection
             Mat laplacian = new Mat();
-            Imgproc.Laplacian(mat, laplacian, CvType.CV_64F);
-
+            Imgproc.Laplacian(gray, laplacian, CvType.CV_64F);
             MatOfDouble mean = new MatOfDouble();
             MatOfDouble stddev = new MatOfDouble();
             Core.meanStdDev(laplacian, mean, stddev);
-            double variance = Math.pow(stddev.get(0, 0)[0], 2);
+            double variance = stddev.get(0,0)[0] * stddev.get(0,0)[0];
 
-            // Empirically tuned threshold for sharp images
-            double actualThreshold = (threshold != null) ? threshold : 20.0;
-            boolean isBlurred = variance < actualThreshold;
+            // Compute blockiness by measuring differences at 8×8 block boundaries
+            int rows = gray.rows();
+            int cols = gray.cols();
+            int blockSize = 8;
+            double blockiness = 0.0;
+            int count = 0;
+            // Horizontal boundaries
+            for (int y = blockSize; y < rows; y += blockSize) {
+                for (int x = 0; x < cols; x++) {
+                    double curr = gray.get(y, x)[0];
+                    double prev = gray.get(y - 1, x)[0];
+                    blockiness += Math.abs(curr - prev);
+                    count++;
+                }
+            }
+            // Vertical boundaries
+            for (int x = blockSize; x < cols; x += blockSize) {
+                for (int y = 0; y < rows; y++) {
+                    double curr = gray.get(y, x)[0];
+                    double prev = gray.get(y, x - 1)[0];
+                    blockiness += Math.abs(curr - prev);
+                    count++;
+                }
+            }
+            blockiness = count > 0 ? blockiness / count : 0.0;
+
+            // Determine if image quality is poor
+            boolean isPoor = (variance < blurThresh) || (blockiness > blockThresh);
 
             WritableMap result = Arguments.createMap();
-            result.putBoolean("isBlurred", isBlurred);
-            result.putDouble("variance", variance);
+            result.putBoolean("isPoor", isPoor);
+            result.putDouble("blurVariance", variance);
+            result.putDouble("blockiness", blockiness);
             promise.resolve(result);
         } catch (Exception e) {
             Log.e("BLUR_CHECK", "Error checking image blur", e);

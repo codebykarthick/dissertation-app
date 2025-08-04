@@ -33,11 +33,12 @@ const CameraScreen = () => {
             console.log(`Saved image to: file://${destPath}`);
 
             // Check if image is blurred using CLAHEBridge
-            const { isBlurred, variance } = await CLAHEBridge.isImageBlurred(destPath, 50.0);
+            const { isPoor, blurVariance, blockiness } = await CLAHEBridge.isImageBlurred(destPath, 50.0, 10.0);
+            // const isPoor = false, variance = 10.0, blockiness = 20.0;
+            console.log(`Blur variance: ${blurVariance}, blockiness: ${blockiness}`);
 
-            console.log("Blur check, variance of image: ", variance)
-            if (isBlurred) {
-                showSnackbar("Image appears to be blurred. Please try again.", Colors.WARN);
+            if (isPoor) {
+                showSnackbar("Image appears to be poor quality. Please try again.", Colors.WARN);
                 return;
             }
 

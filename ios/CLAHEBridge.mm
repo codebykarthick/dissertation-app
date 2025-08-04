@@ -122,7 +122,8 @@ RCT_EXPORT_METHOD(makeLetterBox:(NSString *)imagePath
 
 
 RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
-                  thresholdValue:(nullable NSNumber *)thresholdValue
+                  blurThresholdValue:(nullable NSNumber *)blurThresholdValue
+                  blockThresholdValue:(nullable NSNumber *)blockThresholdValue
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
   @try {
@@ -131,30 +132,57 @@ RCT_EXPORT_METHOD(isImageBlurred:(NSString *)imagePath
       reject(@"BLUR_CHECK_IMAGE_ERROR", @"Failed to load image from path", nil);
       return;
     }
-    
+
+    // Convert UIImage to cv::Mat
     cv::Mat mat;
     UIImageToMat(inputImage, mat);
-    cv::cvtColor(mat, mat, cv::COLOR_BGRA2GRAY);
-    // Normalize size for consistent blur measure
-    cv::Mat resized;
-    cv::resize(mat, resized, cv::Size(300, 300));
-    mat = resized;
-    
-    // Compute Laplacian and its variance
-    cv::Mat laplacian;
-    cv::Laplacian(mat, laplacian, CV_64F);
-    
+    cv::cvtColor(mat, mat, cv::COLOR_BGRA2BGR);
+
+    // Apply default thresholds if arguments are nil
+    double blurThresh = blurThresholdValue ? [blurThresholdValue doubleValue] : 50.0;
+    double blockThresh = blockThresholdValue ? [blockThresholdValue doubleValue] : 10.0;
+
+    // Convert to grayscale
+    cv::Mat gray;
+    cv::cvtColor(mat, gray, cv::COLOR_BGR2GRAY);
+
+    // Compute Laplacian variance for blur detection
+    cv::Mat lap;
+    cv::Laplacian(gray, lap, CV_64F);
     cv::Scalar mean, stddev;
-    cv::meanStdDev(laplacian, mean, stddev);
-    double variance = stddev[0] * stddev[0];
-    
-    // Empirically tuned threshold for sharp images
-    double threshold = thresholdValue != nil ? [thresholdValue doubleValue] : 20.0;
-    BOOL isBlurred = variance < threshold;
-    
+    cv::meanStdDev(lap, mean, stddev);
+    double variance = stddev.val[0] * stddev.val[0];
+
+    // Compute blockiness by measuring differences at 8×8 block boundaries
+    int rows = gray.rows;
+    int cols = gray.cols;
+    const int blockSize = 8;
+    double blockiness = 0.0;
+    int count = 0;
+    // Horizontal boundaries
+    for (int y = blockSize; y < rows; y += blockSize) {
+      for (int x = 0; x < cols; x++) {
+        blockiness += fabs((double)gray.at<uchar>(y, x) - gray.at<uchar>(y - 1, x));
+        count++;
+      }
+    }
+    // Vertical boundaries
+    for (int x = blockSize; x < cols; x += blockSize) {
+      for (int y = 0; y < rows; y++) {
+        blockiness += fabs((double)gray.at<uchar>(y, x) - gray.at<uchar>(y, x - 1));
+        count++;
+      }
+    }
+    blockiness = (count > 0) ? (blockiness / count) : 0.0;
+
+    // Determine if image quality is poor
+    BOOL isPoor = (variance < blurThresh) || (blockiness > blockThresh);
+
+    // Prepare result dictionary
     NSDictionary *result = @{
-      @"isBlurred": @(isBlurred),
-      @"variance": @(variance)
+      @"isPoor": @(isPoor),
+      @"blurVariance": @(variance),
+      @"blockiness": @(blockiness)
     };
     resolve(result);
   } @catch (NSException *exception) {
