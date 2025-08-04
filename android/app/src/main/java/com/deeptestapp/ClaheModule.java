@@ -197,3 +197,4 @@ public class ClaheModule extends ReactContextBaseJavaModule {
             promise.reject("READ_PNG_EXCEPTION", e.getMessage());
         }
     }
+}
