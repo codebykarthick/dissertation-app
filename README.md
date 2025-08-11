@@ -3,7 +3,7 @@
 Cross-platform mobile application built using [React Native](https://reactnative.dev/).  
 This project supports both **iOS** and **Android**, with fully offline functionality.
 
-> ⚠️ Compiled APKs (Android) and test builds (iOS) are available under the [Releases](https://github.com/yourusername/your-repo/releases) tab.
+> ⚠️ Compiled APKs (Android) are available under the [Releases](https://github.com/yourusername/your-repo/releases) tab.
 
 ---
 
