@@ -7,13 +7,19 @@ This project supports both **iOS** and **Android**, with fully offline functiona
 
 ---
 
+## Features
+* Allows for LFD images to be uploaded or captured through camera.
+* Inference occurs locally (no network call or data sent/stored in the servers).
+* Allows for users to enter metadata and review past history.
+* Mechanism to select between models and allow for ensemble functionality.
+
 ## 🛠️ Setup Instructions
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+git clone git@github.com:codebykarthick/dissertation-app.git
+cd dissertation-app
 ```
 
 ### 2. Install Dependencies
@@ -41,7 +47,7 @@ npx react-native run-ios
 ```
 
 ### 🤖 Android Setup
-Make sure you have Android Studio, Java 11, and Android SDK properly configured in your PATH.
+Make sure your Android development environment is correctly set up. For detailed instructions on installing Android Studio and configuring your PATH, please refer to the [React Native Environment Setup Guide](https://reactnative.dev/docs/set-up-your-environment?platform=android).
 To run the app on Android:
 
 ```bash
